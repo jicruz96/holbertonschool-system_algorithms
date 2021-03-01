@@ -1,4 +1,3 @@
-alex@/tmp/huffman_rb_trees$ cat 3-main.c
 #include <stdlib.h>
 #include "rb_trees.h"
 

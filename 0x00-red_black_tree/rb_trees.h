@@ -52,28 +52,34 @@ typedef struct rb_tree_s
 } rb_tree_t;
 
 
+/* 0-rb_tree_node.c */
 rb_tree_t *rb_tree_node(rb_tree_t *parent, int value, rb_color_t color);
-int rb_tree_is_valid(const rb_tree_t *tree);
-rb_tree_t *array_to_rb_tree(int *array, size_t size);
-rb_tree_t *rb_tree_remove(rb_tree_t *root, int n);
 
+/* 1-rb_tree_is_valid.c */
+int rb_tree_is_valid(const rb_tree_t *tree);
+int is_binary_search_tree(const rb_tree_t *node, int min, int max);
+int black_node_depth(const rb_tree_t *node, int black_depth);
+int check_black_node_depths(const rb_tree_t *tree);
 
 /* 2-rb_tree_insert.c */
 rb_tree_t *rb_tree_insert(rb_tree_t **tree, int value);
+void insert_repair(rb_tree_t **tree, rb_tree_t *node);
 void repair_case2(rb_tree_t **tree, rb_tree_t *node);
 void repair_case1(rb_tree_t **tree, rb_tree_t *node);
-void insert_repair(rb_tree_t **tree, rb_tree_t *node);
 rb_tree_t *bst_insert(rb_tree_t **tree, int value);
 
+/* 3-array_to_rb_tree.c */
+rb_tree_t *array_to_rb_tree(int *array, size_t size);
+
+/* 4-rb_tree_remove.c */
+rb_tree_t *rb_tree_remove(rb_tree_t *root, int n);
+rb_tree_t *rb_tree_find_node(rb_tree_t *node, int n);
+void rotate_parent(rb_tree_t *node, rb_tree_t *sister, rb_tree_t **root);
+void remove_repair(rb_tree_t *node, rb_tree_t **root);
+
 /* HELPER FUNCTIONS */
-rb_tree_t *get_aunt(rb_tree_t *node);
 void rotate_left(rb_tree_t *node);
 void rotate_right(rb_tree_t *node);
-
-/* PLAYGROUND */
-int black_node_depth(const rb_tree_t *node, int black_depth);
-int check_black_node_depths(const rb_tree_t *tree);
-int is_binary_search_tree(const rb_tree_t *node, int min, int max);
 void rb_tree_print(const rb_tree_t *tree);
 
 #endif /* _RB_TREES_H_ */
