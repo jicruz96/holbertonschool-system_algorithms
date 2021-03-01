@@ -32,7 +32,7 @@ int is_binary_search_tree(const rb_tree_t *node, int min, int max)
 
 	/* false if this node violates the min/max constraint */
 	if (node->n <= min || node->n >= max)
-		return (true);
+		return (false);
 
 	/* ensure red nodes don't touch other red nodes && ensure root isn't red */
 	if (node->color == RED && (!node->parent || node->parent->color != BLACK))
