@@ -8,11 +8,10 @@
  */
 int rb_tree_is_valid(const rb_tree_t *tree)
 {
-	/* Second property: has to be a valid BST */
 	if (is_binary_search_tree(tree, INT_MIN, INT_MAX) == false)
 		return (false);
 
-	if (check_black_node_depths(tree) == false)
+	if (black_node_depth(tree, 0) == false)
 		return (false);
 
 	return (true);
@@ -47,26 +46,6 @@ int is_binary_search_tree(const rb_tree_t *node, int min, int max)
 		return (false);
 
 	return (is_binary_search_tree(node->right, node->n, max));
-}
-
-/**
- * check_black_node_depths - checks depth of all black nodes
- * to ensure depth of black nodes is same from every subtree
- * @tree: root of tree
- * Return: 1
- */
-int check_black_node_depths(const rb_tree_t *tree)
-{
-	if (!tree)
-		return (true);
-
-	if (black_node_depth(tree, 0) == false)
-		return (false);
-
-	if (check_black_node_depths(tree->right) == false)
-		return (false);
-
-	return (check_black_node_depths(tree->left));
 }
 
 /**
