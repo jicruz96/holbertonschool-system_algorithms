@@ -38,14 +38,14 @@ int is_binary_search_tree(const rb_tree_t *node, int min, int max)
 	/* ensure red nodes don't touch other red nodes && ensure root isn't red */
 	if (node->color == RED && (!node->parent || node->parent->color != BLACK))
 		return (false);
-	
+
 	/* ensure all leaves are either red or black */
 	if (node->color != RED && node->color != BLACK)
 		return (false);
-	
+
 	if (is_binary_search_tree(node->left, min, node->n) == false)
 		return (false);
-	
+
 	return (is_binary_search_tree(node->right, node->n, max));
 }
 

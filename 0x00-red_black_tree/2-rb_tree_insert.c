@@ -41,7 +41,7 @@ void insert_repair(rb_tree_t **tree, rb_tree_t *node)
 			else
 				aunt = node->parent->parent->right;
 		}
-	
+
 		if (aunt && aunt->color == RED)
 			repair_case1(tree, node->parent);
 		else

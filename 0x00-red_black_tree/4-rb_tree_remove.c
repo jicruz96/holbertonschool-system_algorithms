@@ -9,44 +9,44 @@
  **/
 rb_tree_t *rb_tree_remove(rb_tree_t *root, int n)
 {
-    rb_tree_t *replacement, *node;
-	
+	rb_tree_t *replacement, *node;
+
 	node = rb_tree_find_node(root, n);
-    if (node == NULL)
-        return (root);
+	if (node == NULL)
+		return (root);
 
-    /* Transfer node to a leaf position */
-    while (node->right != NULL || node->left != NULL)
-    {
-        if (!node->right)
-        {
-            replacement = node->left;
-        }
-        else
-        {
-            replacement = node->right;
-            while (replacement->left)
-                replacement = replacement->left;
-        }
-        node->n = replacement->n;
-        node = replacement;
-    }
+	/* Transfer node to a leaf position */
+	while (node->right != NULL || node->left != NULL)
+	{
+		if (!node->right)
+		{
+			replacement = node->left;
+		}
+		else
+		{
+			replacement = node->right;
+			while (replacement->left)
+				replacement = replacement->left;
+		}
+		node->n = replacement->n;
+		node = replacement;
+	}
 
-    if (node == root)
-    {
-        free(node);
-        return (NULL);
-    }
+	if (node == root)
+	{
+		free(node);
+		return (NULL);
+	}
 
-    if (node->color == BLACK)
+	if (node->color == BLACK)
 		remove_repair(node, &root);
 
-    if (node->parent->right == node)
+	if (node->parent->right == node)
 		node->parent->right = NULL;
 	else
 		node->parent->left = NULL;
 	free(node);
-    return (root);
+	return (root);
 }
 
 /**
@@ -57,9 +57,9 @@ rb_tree_t *rb_tree_remove(rb_tree_t *root, int n)
  **/
 void remove_repair(rb_tree_t *node, rb_tree_t **root)
 {
-    rb_tree_t *sister = get_sister(node);
-	
-    if (is_red(sister))
+	rb_tree_t *sister = get_sister(node);
+
+	if (is_red(sister))
 	{
 		node->parent->color = RED;
 		sister->color = BLACK;
@@ -69,9 +69,9 @@ void remove_repair(rb_tree_t *node, rb_tree_t **root)
 			rotate_left(node->parent);
 		else
 			rotate_right(node->parent);
-		remove_repair(node, root);		
+		remove_repair(node, root);
 	}
-    else
+	else
 	{
 		if (!sister || (is_black(sister->left) && is_black(sister->right)))
 		{
@@ -87,7 +87,7 @@ void remove_repair(rb_tree_t *node, rb_tree_t **root)
 		}
 		else
 		{
-        	rotate_parent(node, sister, root);
+			rotate_parent(node, sister, root);
 		}
 	}
 }
@@ -152,16 +152,16 @@ void rotate_parent(rb_tree_t *node, rb_tree_t *sister, rb_tree_t **root)
  **/
 rb_tree_t *rb_tree_find_node(rb_tree_t *tree, int n)
 {
-    if (!tree)
-        return (NULL);
+	if (!tree)
+		return (NULL);
 
-    if (tree->n == n)
-        return (tree);
+	if (tree->n == n)
+		return (tree);
 
-    if (n > tree->n)
-        return (rb_tree_find_node(tree->right, n));
+	if (n > tree->n)
+		return (rb_tree_find_node(tree->right, n));
 
-    return (rb_tree_find_node(tree->left, n));
+	return (rb_tree_find_node(tree->left, n));
 }
 
 /**
