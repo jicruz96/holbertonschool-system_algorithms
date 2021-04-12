@@ -16,7 +16,7 @@ size_t helper(
 	edge_t *e;
 	size_t tmp, res = 0;
 
-	if (!v || seen[v->index])
+	if (seen[v->index])
 		return (depth - 1);
 
 	action(v, depth);
@@ -46,9 +46,12 @@ size_t depth_first_traverse(
 	if (graph == NULL)
 		return (0);
 
-	seen = calloc(graph->nb_vertices, sizeof(char));
-	max_depth = helper(graph->vertices, action, seen, max_depth);
-	free(seen);
+	if (graph->nb_vertices)
+	{
+		seen = calloc(graph->nb_vertices, sizeof(char));
+		max_depth = helper(graph->vertices, action, seen, max_depth);
+		free(seen);
+	}
 	return (max_depth);
 
 }
