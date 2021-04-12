@@ -12,15 +12,14 @@ static vertex_t *vertex_init(const char *str, size_t index)
 {
 	vertex_t *new_vertex = malloc(sizeof(vertex_t));
 
-	if (new_vertex)
-	{
-		new_vertex->content = strdup(str);
-		new_vertex->nb_edges = 0;
-		new_vertex->edges = NULL;
-		new_vertex->next = NULL;
-		new_vertex->index = index;
-	}
-
+	if (new_vertex == NULL)
+		return (NULL);
+	
+	new_vertex->content = strdup(str);
+	new_vertex->nb_edges = 0;
+	new_vertex->edges = NULL;
+	new_vertex->next = NULL;
+	new_vertex->index = index;
 	return (new_vertex);
 }
 
