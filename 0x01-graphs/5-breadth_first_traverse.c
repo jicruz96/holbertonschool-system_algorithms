@@ -25,7 +25,7 @@ size_t breadth_first_traverse(
 	vertices = calloc(graph->nb_vertices + 1, sizeof(vertex_t *));
 	vertices[0] = graph->vertices;
 	seen[0] = 1, depth = 0, j = 1, round_size = 1, next_round_size = 0;
-	
+
 	for (i = 0; vertices[i]; i++)
 	{
 		action(vertices[i], depth);
@@ -50,6 +50,5 @@ size_t breadth_first_traverse(
 
 	free(seen);
 	free(vertices);
-
 	return (depth - 1);
 }
