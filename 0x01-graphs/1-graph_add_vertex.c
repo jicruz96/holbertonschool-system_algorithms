@@ -14,7 +14,7 @@ static vertex_t *vertex_init(const char *str, size_t index)
 
 	if (new_vertex == NULL)
 		return (NULL);
-	
+
 	new_vertex->content = strdup(str);
 	new_vertex->nb_edges = 0;
 	new_vertex->edges = NULL;
