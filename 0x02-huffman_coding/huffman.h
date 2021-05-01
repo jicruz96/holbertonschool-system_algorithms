@@ -1,7 +1,7 @@
 #ifndef HUFFMAN_H
 #define HUFFMAN_H
 
-#include "heap/heap.h"
+#include "heap.h"
 
 typedef unsigned long size_t;
 
