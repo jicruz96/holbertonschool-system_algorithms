@@ -2,176 +2,97 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-int get_num_steps(int size)
-{
-    int steps = 0;
-    int n = 4;
-
-    while (size >= n)
-    {
-        steps += 1;
-        n *= 2;
-    }
-
-    return (steps);
-}
-
-binary_tree_node_t *insert_last(heap_t *heap, void *data)
-{
-    int n = heap->size + 1;
-    int f = get_num_steps(n);
-    binary_tree_node_t *node;
-
-    heap->size += 1;
-    node = heap->root;
-
-    while (f)
-    {
-        if (n & (1 << f))
-            node = node->right;
-        else
-            node = node->left;
-        f -= 1;
-    }
-
-    if (n & 1)
-    {
-        node->right = binary_tree_node(node, data);
-        return (node->right);
-    }
-    else
-    {
-        node->left = binary_tree_node(node, data); 
-        return (node->left);
-    }
-
-}
-
-/**
- * swap_nodes - swaps two nodes
- * @n1: node 1
- * @n2: node 2
- **/
-void swap_nodes(binary_tree_node_t *n1, binary_tree_node_t *n2)
-{
-  binary_tree_node_t *tmp;
-
-  if (n1 == NULL || n2 == NULL)
-    return;
-
-  /* node1->parent->pointer */
-  if (n1->parent && n1->parent != n2)
-  {
-    if (n1->parent->right == n1)
-      n1->parent->right = n2;
-    else
-      n1->parent->left = n2;
-  }
-
-  /* node2->parent->pointer */
-  if (n2->parent && n2->parent != n1)
-  {
-    if (n2->parent->right == n2)
-      n2->parent->right = n1;
-    else
-      n2->parent->left = n1;
-  }
-  
-  /* node1->parent */
-  tmp = n1->parent;
-  if (n2->parent != n1)
-    n1->parent = n2->parent;
-  else
-    n1->parent = n2;
-
-  /* node2->parent */
-  if (tmp != n2)
-    n2->parent = tmp;
-  else
-    n2->parent = n1;
-
-  /* node1->right->parent */
-  if (n1->right && n1->right != n2)
-    n1->right->parent = n2;
-  
-  /* node2->right->parent */
-  if (n2->right && n2->right != n1)
-    n2->right->parent = n1;
-
-  /* node1->left->parent */
-  if (n1->left && n1->left != n2)
-    n1->left->parent = n2;
-
-  /* node2->left->parent */
-  if (n2->left && n2->left != n2)
-    n2->left->parent = n1;
-
-  /* node1->right */
-  tmp = n1->right;
-  if (n1 == n2->right)
-    n1->right = n2;
-  else
-    n1->right = n2->right;
-
-  /* node2->right */
-  if (n2 == tmp)
-    n2->right = n1;
-  else
-    n2->right = tmp;
-
-  /* node1->left */
-  tmp = n1->left;
-  if (n1 == n2->left)
-    n1->left = n2;
-  else
-    n1->left = n2->left;
-
-  /* node2->left */
-  if (n2 == tmp)
-    n2->left = n1;
-  else
-    n2->left = tmp;
-
-  printf("swapped\n");
-}
-
 /**
  * heap_insert - inserts a new value into a min binary heap
  * @heap: pointer to min heap
  * @data: pointer to new data to add to heap
- * Return: pointer to new node 
+ * Return: pointer to new node
  **/
 binary_tree_node_t *heap_insert(heap_t *heap, void *data)
 {
-    binary_tree_node_t *node;
+	binary_tree_node_t *tmp_node, *new = binary_tree_node(NULL, data);
+	size_t tmp, moves;
 
-    if (heap == NULL || data == NULL)
-        return (NULL);
+	if (new == NULL)
+		return (NULL);
 
-    if (heap->root == NULL)
-    {
-        heap->root = binary_tree_node(NULL, data);
-        heap->size = 1;
-        return (heap->root);
-    }
+	heap->size += 1;
+	if (heap->root)
+	{
+		/* moves = floor(log2(head->size)) - 1; but i can't use math.h >:( */
+		for (tmp = 4, moves = 0; heap->size >= tmp; tmp *= 2)
+			moves += 1;
 
-    node = insert_last(heap, data);
-    while (node->parent && heap->data_cmp(node->data, node->parent->data) < 0)
-      swap_nodes(node, node->parent);
-    if (node->parent == NULL)
-      heap->root = node;
-    else
-      printf("node is %d and node parent is %d\n", *(int *)(node->data), *(int *)(node->parent->data));
-    return (node);
+		for (tmp_node = heap->root; moves; moves--)
+			if (heap->size & (1 << moves))
+				tmp_node = tmp_node->right;
+			else
+				tmp_node = tmp_node->left;
+
+		if (heap->size & 1)
+			tmp_node->right = new;
+		else
+			tmp_node->left = new;
+
+		new->parent = tmp_node;
+
+		while (new->parent)
+			if (heap->data_cmp(new->data, new->parent->data) < 0)
+				swap_node_with_parent(new);
+			else
+				break;
+	}
+
+	if (new->parent == NULL)
+		heap->root = new;
+
+	return (new);
 }
 
- /*
- To add an element to a heap, we can perform this algorithm:
+/**
+ * swap_node_with_parent - swaps position of a node with its parent in a tree
+ * @node: binary tree node
+ **/
+void swap_node_with_parent(binary_tree_node_t *node)
+{
+	binary_tree_node_t *tmp, *parent;
 
-Add the element to the bottom level of the heap at the leftmost open space.
-Compare the added element with its parent; if they are in the correct order, stop.
-If not, swap the element with its parent and return to the previous step.
-The size of heap must be incremented if the function succeeds
-If heap->root is NULL, then the new node must take its place
-You are allowed to have at most 7 functions in your file
-*/
+	if (node == NULL || node->parent == NULL)
+		return;
+
+	parent = node->parent;
+
+	if (parent->parent && parent->parent->right == parent)
+		parent->parent->right = node;
+	else if (parent->parent)
+		parent->parent->left = node;
+
+	node->parent = parent->parent;
+	parent->parent = node;
+
+	if (node->left)
+		node->left->parent = parent;
+	if (node->right)
+		node->right->parent = parent;
+
+	if (parent->right == node)
+	{
+		if (parent->left)
+			parent->left->parent = node;
+		parent->right = node->right;
+		node->right = parent;
+		tmp = parent->left;
+		parent->left = node->left;
+		node->left = tmp;
+	}
+	else
+	{
+		if (parent->right)
+			parent->right->parent = node;
+		parent->left = node->left;
+		node->left = parent;
+		tmp = parent->right;
+		parent->right = node->right;
+		node->right = tmp;
+	}
+}
