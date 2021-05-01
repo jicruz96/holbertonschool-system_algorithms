@@ -71,6 +71,11 @@ int main(void)
             fprintf(stderr, "Failed to insert a node\n");
             return (EXIT_FAILURE);
         }
+        else
+        {
+            printf("New node added: %d\tL: %d\tR: %d\tP: %d\n", *(int *)node->data, node->left ? *(int *)node->left->data : -1, node->right ? *(int *)node->right->data : -1, node->parent ? *(int *)node->parent->data : -1);
+        }
+        
         binary_tree_print(heap->root, print_int);
         printf("\n");
     }
