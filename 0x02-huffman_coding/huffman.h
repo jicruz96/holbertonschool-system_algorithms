@@ -1,6 +1,8 @@
 #ifndef HUFFMAN_H
 #define HUFFMAN_H
 
+typedef unsigned long size_t;
+
 /**
  * struct symbol_s - Stores a char and its associated frequency
  *
