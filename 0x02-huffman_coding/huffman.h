@@ -1,7 +1,10 @@
 #ifndef HUFFMAN_H
 #define HUFFMAN_H
 
+#include "heap/heap.h"
+
 typedef unsigned long size_t;
+
 
 /**
  * struct symbol_s - Stores a char and its associated frequency
@@ -16,6 +19,9 @@ typedef struct symbol_s
 } symbol_t;
 
 symbol_t *symbol_create(char data, size_t freq);
+heap_t *huffman_priority_queue(char *data, size_t *freq, size_t size);
+int compare_frequencies(void *f1, void *f2);
+void free_data(void *node);
 
 
 #endif /* HUFFMAN_H */
