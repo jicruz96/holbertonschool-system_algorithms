@@ -1,7 +1,6 @@
 #include "huffman.h"
 #include <stdlib.h>
 
-#include <stdio.h>
 /**
  * huffman_priority_queue - creates priority queue for Huffman coding algorithm
  * @data: array of characters
@@ -26,7 +25,7 @@ heap_t *huffman_priority_queue(char *data, size_t *freq, size_t size)
 
 	for (i = 0; i < size; i++)
 	{
-		symbol = symbol_create(data[i], freq[i]);
+		symbol = i > 3 ? NULL : symbol_create(data[i], freq[i]);
 		if (symbol == NULL)
 		{
 			heap_delete(heap, free_data);
@@ -88,7 +87,7 @@ void free_data(void *data)
 	node = (binary_tree_node_t *)data;
 	if (node)
 	{
+		free(((binary_tree_node_t *)(node->data))->data);
 		free(node->data);
-		free(node);
 	}
 }
