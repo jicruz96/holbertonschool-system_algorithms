@@ -1,0 +1,29 @@
+#include "huffman.h"
+
+/**
+ * huffman_extract_and_insert - extracts two nodes of a priority queue and
+ * inserts a new one
+ * @priority_queue: pointer to the priority queue object
+ * Return: 1 on success | 0 on failure
+ **/
+int huffman_extract_and_insert(heap_t *priority_queue)
+{
+	binary_tree_node_t *node1, *node2, *node;
+	size_t freq1, freq2;
+
+	if (priority_queue == NULL || priority_queue->size < 2)
+		return (0);
+
+	node1       = heap_extract(priority_queue);
+	node2       = heap_extract(priority_queue);
+
+	freq1       = ((symbol_t *)node1->data)->freq;
+	freq2       = ((symbol_t *)node2->data)->freq;
+
+	node        = binary_tree_node(NULL, symbol_create(-1, freq1 + freq2));
+	node->left  = binary_tree_node(node, node1->data);
+	node->right = binary_tree_node(node, node2->data);
+
+	heap_insert(priority_queue, node);
+	return (1);
+}
