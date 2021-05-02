@@ -58,8 +58,8 @@ int compare_frequencies(void *p1, void *p2)
 	node1 = (binary_tree_node_t *)p1;
 	node2 = (binary_tree_node_t *)p2;
 
-	symbol1 = (symbol_t *)node1;
-	symbol2 = (symbol_t *)node2;
+	symbol1 = (symbol_t *)node1->data;
+	symbol2 = (symbol_t *)node2->data;
 
 	freq1 = symbol1 ? symbol1->freq : 0;
 	freq2 = symbol2 ? symbol2->freq : 0;
