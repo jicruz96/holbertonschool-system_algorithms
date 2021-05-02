@@ -19,6 +19,31 @@ typedef struct symbol_s
 	size_t freq;
 } symbol_t;
 
+/**
+ * struct huffman_list_node_s - linked list node that associates a huffman code
+ * with a symbol struct stored in a binary tree node
+ * @code: huffman code as a string
+ * @data: pointer to binary tree node containing symbol associated with code
+ * @next: next huffman code struct in the list
+ **/
+typedef struct huffman_list_node_s
+{
+	char code[256];
+	binary_tree_node_t *data;
+	struct huffman_list_node_s *next;
+} huffman_list_node_t;
+
+/**
+ * struct huffqueue_s - queue for huffman code structs
+ * @head: head of list
+ * @tail: tail of list
+ **/
+typedef struct huffqueue_s
+{
+	huffman_list_node_t *head;
+	huffman_list_node_t *tail;
+} huffqueue_t;
+
 symbol_t *symbol_create(char data, size_t freq);
 heap_t *huffman_priority_queue(char *data, size_t *freq, size_t size);
 int compare_frequencies(void *f1, void *f2);
@@ -26,6 +51,11 @@ void free_data(void *node);
 
 int huffman_extract_and_insert(heap_t *priority_queue);
 binary_tree_node_t *huffman_tree(char *data, size_t *freq, size_t size);
+
+/* huffman_codes.c */
+int huffman_codes(char *data, size_t *freq, size_t size);
+int print_huffman_codes(binary_tree_node_t *ht);
+int huffqueue_add(binary_tree_node_t *node, char *code, huffqueue_t *queue);
 
 
 #endif /* HUFFMAN_H */
