@@ -79,9 +79,14 @@ int huffqueue_add(binary_tree_node_t *node, char *code, huffqueue_t *queue)
 		return (0);
 
 	if (code)
+	{
 		memcpy(huffcode->code, code, sizeof(huffcode->code) / sizeof(*code));
+	}
 	else
-		strcpy(huffcode->code, "0");
+	{
+		memset(huffcode->code, '\0', sizeof(huffcode->code));
+		huffcode->code[0] = '0';
+	}
 
 	huffcode->data = node;
 	huffcode->next = NULL;
