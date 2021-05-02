@@ -16,14 +16,19 @@ int huffman_extract_and_insert(heap_t *priority_queue)
 
 	node1       = heap_extract(priority_queue);
 	node2       = heap_extract(priority_queue);
-
+	if (!node1 || !node2)
+		return (0);
 	freq1       = ((symbol_t *)node1->data)->freq;
 	freq2       = ((symbol_t *)node2->data)->freq;
 
 	node        = binary_tree_node(NULL, symbol_create(-1, freq1 + freq2));
+	if (!node)
+		return (0);
 	node->left  = node1, node1->parent = node;
 	node->right = node2, node2->parent = node;
 
-	heap_insert(priority_queue, node);
+	if (heap_insert(priority_queue, node) == NULL)
+		return (0);
+
 	return (1);
 }
