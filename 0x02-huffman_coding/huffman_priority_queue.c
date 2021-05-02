@@ -76,12 +76,19 @@ int compare_frequencies(void *p1, void *p2)
 
 /**
  * free_data - frees internal data of a node
- * @node: node
+ * @data: data (to be typecasted to a binary_tree_node_t node)
  **/
-void free_data(void *node)
+void free_data(void *data)
 {
-	if (node == NULL)
+	binary_tree_node_t *node;
+
+	if (data == NULL)
 		return;
 
-	free(((binary_tree_node_t *)node)->data);
+	node = (binary_tree_node_t *)data;
+	if (node)
+	{
+		free(node->data);
+		free(node);
+	}
 }
