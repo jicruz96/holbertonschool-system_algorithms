@@ -13,15 +13,13 @@ binary_tree_node_t *huffman_tree(char *data, size_t *freq, size_t size)
 	heap_t *pq = huffman_priority_queue(data, freq, size);
 	binary_tree_node_t *huffman_tree;
 
-	if (pq == NULL)
+	if (pq == NULL || pq->root == NULL)
 		return (NULL);
 
 	while (huffman_extract_and_insert(pq))
 		continue;
 
-	huffman_tree = pq->root;
-	pq->root = NULL;
-	free(pq);
-
+	huffman_tree = pq->root->data;
+	heap_delete(pq, NULL);
 	return (huffman_tree);
 }
