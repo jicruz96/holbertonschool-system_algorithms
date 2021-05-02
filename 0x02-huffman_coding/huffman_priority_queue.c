@@ -46,19 +46,29 @@ heap_t *huffman_priority_queue(char *data, size_t *freq, size_t size)
 /**
  * compare_frequencies - compares the frequency values of two nodes in a
  *                       huffman priority queue.
- * @node1: node 1
- * @node2: node 2
+ * @p1: pointer 1
+ * @p2: pointer 2
  * Return: 1 if f1 is greater, -1 if f2 is greater, 0 if equivalent
  **/
-int compare_frequencies(void *node1, void *node2)
+int compare_frequencies(void *p1, void *p2)
 {
-	symbol_t *symbol1 = (symbol_t *)((binary_tree_node_t *)node1)->data;
-	symbol_t *symbol2 = (symbol_t *)((binary_tree_node_t *)node2)->data;
+	binary_tree_node_t *node1, *node2;
+	symbol_t *symbol1, *symbol2;
+	size_t freq1, freq2;
 
-	if (symbol1->freq > symbol2->freq)
+	node1 = (binary_tree_node_t *)p1;
+	node2 = (binary_tree_node_t *)p2;
+
+	symbol1 = (symbol_t *)node1;
+	symbol2 = (symbol_t *)node2;
+
+	freq1 = symbol1 ? symbol1->freq : 0;
+	freq2 = symbol2 ? symbol2->freq : 0;
+
+	if (freq1 > freq2)
 		return (1);
 
-	if (symbol1->freq > symbol2->freq)
+	if (freq2 > freq1)
 		return (-1);
 
 	return (0);
