@@ -25,7 +25,7 @@ heap_t *huffman_priority_queue(char *data, size_t *freq, size_t size)
 
 	for (i = 0; i < size; i++)
 	{
-		symbol = i > 3 ? NULL : symbol_create(data[i], freq[i]);
+		symbol = symbol_create(data[i], freq[i]);
 		if (symbol == NULL)
 		{
 			heap_delete(heap, free_data);
