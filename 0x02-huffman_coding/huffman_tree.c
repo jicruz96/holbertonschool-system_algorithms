@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include "huffman.h"
 
@@ -19,9 +20,8 @@ binary_tree_node_t *huffman_tree(char *data, size_t *freq, size_t size)
 	while (huffman_extract_and_insert(pq))
 		continue;
 
-	huffman_tree = pq->root;
-	pq->root = NULL;
-	free(pq);
+	huffman_tree = pq->root->data;
+	heap_delete(pq, NULL);
 
 	return (huffman_tree);
 }
