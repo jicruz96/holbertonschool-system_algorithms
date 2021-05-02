@@ -17,8 +17,9 @@ binary_tree_node_t *huffman_tree(char *data, size_t *freq, size_t size)
 	if (pq == NULL || pq->root == NULL)
 		return (NULL);
 
-	while (huffman_extract_and_insert(pq))
-		continue;
+	while (pq->size > 1)
+		if (huffman_extract_and_insert(pq) == 0)
+			return (NULL);
 
 	huffman_tree = pq->root->data;
 	heap_delete(pq, NULL);
