@@ -25,6 +25,7 @@ int compare_frequencies(void *f1, void *f2);
 void free_data(void *node);
 
 int huffman_extract_and_insert(heap_t *priority_queue);
+binary_tree_node_t *huffman_tree(char *data, size_t *freq, size_t size);
 
 
 #endif /* HUFFMAN_H */
