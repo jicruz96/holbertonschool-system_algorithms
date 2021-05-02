@@ -22,7 +22,7 @@ int huffman_codes(char *data, size_t *freq, size_t size)
  **/
 int print_huffman_codes(binary_tree_node_t *ht)
 {
-	huffqueue_t queue = {.head = NULL, .tail = NULL};
+	huffqueue_t queue = {NULL, NULL};
 	huffman_list_node_t *huffcode = queue.head;
 	int depth = 0, count = 1, next_level = 2;
 	binary_tree_node_t *node;
