@@ -24,34 +24,35 @@ int print_huffman_codes(binary_tree_node_t *ht)
 {
 	huffqueue_t queue = {NULL, NULL};
 	huffman_list_node_t *huffcode = queue.head;
-	int depth = 0, count = 1, next_level = 2;
-	binary_tree_node_t *node;
+	binary_tree_node_t *node, *next_level = NULL;
 	symbol_t *symbol;
+	int depth = 0;
 
 	if (ht == NULL || huffqueue_add(ht, NULL, &queue) == 0)
 		return (0);
 
 	for (huffcode = queue.head; huffcode; huffcode = queue.head)
 	{
-		if (count++ == next_level)
-			depth += 1, next_level *= 2;
-
 		node = huffcode->data;
-		symbol = node->data;
+		if (next_level == NULL || node == next_level)
+		{
+			next_level = node->left ? node->left : node->right;
+			depth += (next_level != NULL);
+		}
 
+		symbol = node->data;
 		if (symbol->data != -1)
 			printf("%c: %s\n", symbol->data, huffcode->code);
 
 		if (node->left)
 		{
-			huffcode->code[depth] = '0';
+			huffcode->code[depth - 1] = '0';
 			if (huffqueue_add(node->left, huffcode->code, &queue) == 0)
 				return (0);
 		}
-
 		if (node->right)
 		{
-			huffcode->code[depth] = '1';
+			huffcode->code[depth - 1] = '1';
 			if (huffqueue_add(node->right, huffcode->code, &queue) == 0)
 				return (0);
 		}
