@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+void binary_tree_print(const binary_tree_node_t *heap, int (*print_data)(char *, void *));
 
 /**
  * huffman_codes - makes huffman tree and prints huffman codes
@@ -30,6 +31,8 @@ int print_huffman_codes(binary_tree_node_t *ht)
 
 	if (ht == NULL || huffqueue_add(ht, NULL, &queue) == 0)
 		return (0);
+	
+	binary_tree_print(ht, symbol_print);
 
 	for (huffcode = queue.head; huffcode; huffcode = queue.head)
 	{
@@ -42,7 +45,7 @@ int print_huffman_codes(binary_tree_node_t *ht)
 
 		symbol = node->data;
 		if (symbol->data != -1)
-			printf("%c: %s\n", symbol->data, huffcode->code);
+			printf("[%c](%d): %s\n", symbol->data, (int)symbol->data, huffcode->code);
 
 		if (node->left)
 		{

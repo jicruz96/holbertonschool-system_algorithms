@@ -57,5 +57,7 @@ int huffman_codes(char *data, size_t *freq, size_t size);
 int print_huffman_codes(binary_tree_node_t *ht);
 int huffqueue_add(binary_tree_node_t *node, char *code, huffqueue_t *queue);
 
+int symbol_print(char *buffer, void *data);
+
 
 #endif /* HUFFMAN_H */

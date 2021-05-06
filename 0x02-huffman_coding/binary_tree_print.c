@@ -2,8 +2,30 @@
 #include <stdlib.h>
 #include <string.h>
 #include "heap.h"
+#include "huffman.h"
 
 /* Original code from http://stackoverflow.com/a/13755911/5184480 */
+/**
+ * symbol_print - Prints a symbol structure
+ *
+ * @buffer: Buffer to print into
+ * @data: Pointer to a node's data
+ *
+ * Return: Number of bytes written in buffer
+ */
+int symbol_print(char *buffer, void *data)
+{
+    symbol_t *symbol;
+    char c;
+    int length;
+
+    symbol = (symbol_t *)data;
+    c = symbol->data;
+    if (c == -1)
+        c = '$';
+    length = sprintf(buffer, "(%c/%lu)", c, symbol->freq);
+    return (length);
+}
 
 /**
  * print_t - Stores recursively each level in an array of strings
