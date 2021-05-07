@@ -32,8 +32,6 @@ int print_huffman_codes(binary_tree_node_t *ht)
 	if (ht == NULL || huffqueue_add(ht, NULL, &queue) == 0)
 		return (0);
 	
-	binary_tree_print(ht, symbol_print);
-
 	for (huffcode = queue.head; huffcode; huffcode = queue.head)
 	{
 		node = huffcode->data;
@@ -45,7 +43,7 @@ int print_huffman_codes(binary_tree_node_t *ht)
 
 		symbol = node->data;
 		if (symbol->data != -1)
-			printf("[%c](%d): %s\n", symbol->data, (int)symbol->data, huffcode->code);
+			printf("%c: %s\n", symbol->data, huffcode->code);
 
 		if (node->left)
 		{
@@ -84,11 +82,11 @@ int huffqueue_add(binary_tree_node_t *node, char *code, huffqueue_t *queue)
 
 	if (code)
 	{
-		memcpy(huffcode->code, code, sizeof(huffcode->code) / sizeof(*code));
+		memcpy(huffcode->code, code, ARRAY_SIZE(huffcode->code));
 	}
 	else
 	{
-		memset(huffcode->code, '\0', sizeof(huffcode->code));
+		memset(huffcode->code, '\0', ARRAY_SIZE(huffcode->code));
 		huffcode->code[0] = '0';
 	}
 

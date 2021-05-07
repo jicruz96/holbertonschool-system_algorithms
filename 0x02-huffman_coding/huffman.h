@@ -7,6 +7,9 @@
 #define NULL ((void *)0)
 #endif /* NULL */
 
+#define ASCII_SIZE (1 << 8)
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
+
 /**
  * struct symbol_s - Stores a char and its associated frequency
  *
@@ -59,5 +62,7 @@ int huffqueue_add(binary_tree_node_t *node, char *code, huffqueue_t *queue);
 
 int symbol_print(char *buffer, void *data);
 
+/* get_huffman_codes.c */
+char **get_huffman_codes(char *data, size_t *freq, size_t size, int out_fd);
 
 #endif /* HUFFMAN_H */
