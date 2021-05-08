@@ -63,6 +63,6 @@ int huffqueue_add(binary_tree_node_t *node, char *code, huffqueue_t *queue);
 int symbol_print(char *buffer, void *data);
 
 /* get_huffman_codes.c */
-char **get_huffman_codes(char *data, size_t *freq, size_t size, int out_fd);
+char **encode_tree_delete_tree_return_codes(binary_tree_node_t *tree, int fd);
 
 #endif /* HUFFMAN_H */
