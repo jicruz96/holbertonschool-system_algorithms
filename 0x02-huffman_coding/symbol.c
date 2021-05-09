@@ -11,11 +11,10 @@ symbol_t *symbol_create(char data, size_t freq)
 {
 	symbol_t *new = malloc(sizeof(symbol_t));
 
-	if (new)
-	{
-		new->data = data;
-		new->freq = freq;
-	}
+	if (new == NULL)
+		return (NULL);
 
+	new->data = data;
+	new->freq = freq;
 	return (new);
 }
