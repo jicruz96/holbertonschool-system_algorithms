@@ -28,13 +28,13 @@ heap_t *huffman_priority_queue(char *data, size_t *freq, size_t size)
 		symbol = symbol_create(data[i], freq[i]);
 		if (symbol == NULL)
 		{
-			heap_delete(heap, free_data);
+			heap_delete(heap, free_internal_node);
 			return (NULL);
 		}
 		node = binary_tree_node(NULL, (void *)symbol);
 		if (node == NULL)
 		{
-			heap_delete(heap, free_data);
+			heap_delete(heap, free_internal_node);
 			return (NULL);
 		}
 		heap_insert(heap, node);
@@ -74,10 +74,10 @@ int compare_frequencies(void *p1, void *p2)
 }
 
 /**
- * free_data - frees internal data of a node
+ * free_internal_node - frees internal data of a node
  * @data: data (to be typecasted to a binary_tree_node_t node)
  **/
-void free_data(void *data)
+void free_internal_node(void *data)
 {
 	binary_tree_node_t *node;
 

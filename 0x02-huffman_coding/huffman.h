@@ -50,7 +50,7 @@ typedef struct huffqueue_s
 symbol_t *symbol_create(char data, size_t freq);
 heap_t *huffman_priority_queue(char *data, size_t *freq, size_t size);
 int compare_frequencies(void *f1, void *f2);
-void free_data(void *node);
+void free_internal_node(void *node);
 
 int huffman_extract_and_insert(heap_t *priority_queue);
 binary_tree_node_t *huffman_tree(char *data, size_t *freq, size_t size);
