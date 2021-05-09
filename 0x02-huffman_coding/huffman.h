@@ -65,4 +65,21 @@ int symbol_print(char *buffer, void *data);
 /* get_huffman_codes.c */
 char **encode_tree_delete_tree_return_codes(binary_tree_node_t *tree, int fd);
 
+/* make pretty later */
+void free_data_simple(void *node);
+void huffman_write(char *code, int fd);
+void add_bit(int bit, int fd);
+int get_bit(int fd);
+char **encode_tree_delete_tree_return_codes(binary_tree_node_t *tree, int fd);
+void compress(int in_fd, int out_fd);
+char get_char(binary_tree_node_t *tree, int fd);
+void decompress(int in_fd, int out_fd);
+
+
+
+
+
+
+
+
 #endif /* HUFFMAN_H */

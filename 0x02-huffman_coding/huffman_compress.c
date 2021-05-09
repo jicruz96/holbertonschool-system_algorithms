@@ -9,66 +9,6 @@
 
 #define READ_SIZE 1024
 
-void binary_tree_print(const binary_tree_node_t *root,
-	int (*print_data)(char *, void *));
-void bah(void *tree)
-{
-	free(((binary_tree_node_t *)tree)->data);
-}
-
-
-/**
- * huffman_write - writes a huffman code into a file
- * @code: huffman code
- **/
-void huffman_write(char *code, int fd)
-{
-	static char chunk;
-	static int bit_position;
-
-    if (!code)
-    {
-        write(fd, &chunk, sizeof(chunk));
-        bit_position = 0;
-        return;
-    }
-
-    for (; *code; code++, bit_position++)
-    {
-        if (bit_position == 8 * sizeof(chunk))
-	    {
-            write(fd, &chunk, sizeof(chunk));
-		    memset(&chunk, 0, sizeof(chunk));
-		    bit_position = 0;
-	    }
-
-        if (*code == '1')
-            chunk |= 1 << ((8 * sizeof(chunk) - 1) - bit_position);
-    }
-}
-
-/**
- * add_bit - adds a bit to 1-byte chunk. Writes to file when chunk is full
- * @bit: 1 or 0
- * @fd: output file descriptor
- **/
-void add_bit(int bit, int fd)
-{
-	static char chunk;
-	static int bit_position;
-
-	if (bit_position == 8 * sizeof(chunk) || bit == -1)
-	{
-        write(fd, &chunk, sizeof(chunk));
-		memset(&chunk, 0, sizeof(chunk));
-		bit_position = 0;
-		if (bit == -1)
-			return;
-	}
-	if (bit == 1)
-        chunk |= 1 << ((8 * sizeof(chunk) - 1) - bit_position);
-    bit_position += 1;
-}
 
 /**
  * get_bit - returns a bit from a file
@@ -81,11 +21,11 @@ int get_bit(int fd)
 	static int bit_position;
 
 
-    if (fd == -1)
-    {
-        bit_position = 0;
-        return (0);
-    }
+	if (fd == -1)
+	{
+		bit_position = 0;
+		return (0);
+	}
 
 	if (bit_position == 8 * sizeof(chunk) || bit_position == 0)
 	{
@@ -100,7 +40,7 @@ int get_bit(int fd)
 
 /**
  * encode_tree_delete_tree_return_codes - encodes a huffman tree to fd,
- * 										  deletes tree, and returns codes
+ *										  deletes tree, and returns codes
  * @tree: huffman tree
  * @fd: file descriptor where tree will be encoded
  * Return: huffman codes from huffman tree as an array
@@ -115,8 +55,7 @@ char **encode_tree_delete_tree_return_codes(binary_tree_node_t *tree, int fd)
 
 	if (tree == NULL || huffqueue_add(tree, NULL, &queue) == 0)
 		return (NULL);
-	codes = calloc(ASCII_SIZE, sizeof(char *));
-	for (; queue.head; queue.head = tmp)
+	for (codes = calloc(ASCII_SIZE, sizeof(char *)); queue.head; queue.head = tmp)
 	{
 		node = queue.head->data, c = ((symbol_t *)node->data)->data;
 		if (next_level == NULL || node == next_level)
@@ -175,7 +114,6 @@ void compress(int in_fd, int out_fd)
 			freq_tmp[(int)buffer[i]] += 1;
 		}
 	}
-
 	/* CREATE DATA/FREQ ARRAYS. USE TO CREATE HUFFMAN CODES */
 	data = malloc(sizeof(char) * symbol_count);
 	freq = malloc(sizeof(size_t) * symbol_count);
@@ -183,15 +121,15 @@ void compress(int in_fd, int out_fd)
 		if (freq_tmp[i] != 0)
 			data[j] = (char)i, freq[j++] = freq_tmp[i];
 	tree = huffman_tree(data, freq, symbol_count);
-    codes = encode_tree_delete_tree_return_codes(tree, out_fd);
+	codes = encode_tree_delete_tree_return_codes(tree, out_fd);
 	/* WRITE TO FILE */
 	lseek(in_fd, 0, SEEK_SET);
 	for (bytes = ARRAY_SIZE(buffer); bytes == ARRAY_SIZE(buffer); )
 	{
 		bytes = read(in_fd, buffer, ARRAY_SIZE(buffer));
-        for (i = 0; i < bytes; i++)
-            huffman_write(codes[(int)buffer[i]], out_fd);
-    }
+		for (i = 0; i < bytes; i++)
+			huffman_write(codes[(int)buffer[i]], out_fd);
+	}
 	huffman_write(codes[0], out_fd);
 	huffman_write(NULL, out_fd);
 	/* FREE EVERYTHING */
@@ -201,21 +139,23 @@ void compress(int in_fd, int out_fd)
 }
 
 /**
- * get_char - gets char
+ * get_char - traverses a huffman tree to find and return a character
  * @tree: huffman tree
- * Return: char
+ * @fd: file descriptor to pull traversal directions from
+ * Return: found character
  **/
 char get_char(binary_tree_node_t *tree, int fd)
 {
-    int i;
+	int i;
+
 	while (tree->data == NULL)
 	{
 		i = get_bit(fd);
-        if (i == 1)
+		if (i == 1)
 			tree = tree->right;
-        else
-            tree = tree->left;
-    }
+		else
+			tree = tree->left;
+	}
 	return (*((char *)tree->data));
 }
 
@@ -233,8 +173,8 @@ void decompress(int in_fd, int out_fd)
 	size_t i;
 
 	/* DECODE HUFFMAN TREE */
-    root = node;
-    for (huffqueue_add(node, NULL, &queue); queue.head; queue.head = tmp)
+	root = node;
+	for (huffqueue_add(node, NULL, &queue); queue.head; queue.head = tmp)
 	{
 		node = queue.head->data;
 		if (get_bit(in_fd) == 1)
@@ -260,11 +200,11 @@ void decompress(int in_fd, int out_fd)
 
 
 	/* DECOMPRESS FILE */
-    get_bit(-1);
+	get_bit(-1);
 	while ((c = get_char(root, in_fd)))
-        write(out_fd, &c, sizeof(c));
+		write(out_fd, &c, sizeof(c));
 
-	tree_delete(root, bah);
+	tree_delete(root, free_data_simple);
 }
 
 /**
@@ -296,9 +236,8 @@ int main(int argc, char *argv[])
 		printf("No such file: %s\n", argv[2]);
 		return (EXIT_FAILURE);
 	}
-
-	out_fd = open(argv[3], O_WRONLY | O_CREAT | O_EXCL);
-    if (out_fd == -1)
+	out_fd = open(argv[3], O_WRONLY | O_CREAT | O_EXCL, 0640);
+	if (out_fd == -1)
 	{
 		printf("File already exists: %s\n", argv[3]);
 		close(in_fd);
