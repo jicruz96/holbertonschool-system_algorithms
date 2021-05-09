@@ -54,22 +54,34 @@ void *heap_extract(heap_t *heap)
  **/
 void heapify(binary_tree_node_t *node, heap_t *heap)
 {
-	binary_tree_node_t *largest;
+	binary_tree_node_t *smallest;
 
 	if (node == NULL)
 		return;
 
-	largest = node;
-	if (node->left && heap->data_cmp(node->left->data, largest->data) < 0)
-		largest = node->left;
-	if (node->right && heap->data_cmp(node->right->data, largest->data) < 0)
-		largest = node->right;
+	if (node->left && heap->data_cmp(node->left->data, node->data) <= 0)
+		smallest = node->left;
+	else
+		smallest = node;
 
-	if (largest != node)
+	if (node->right)
 	{
-		swap_node_with_parent(largest);
-		if (largest->parent == NULL)
-			heap->root = largest;
+		if (smallest == node->left)
+		{
+			if (heap->data_cmp(node->right->data, smallest->data) < 0)
+				smallest = node->right;
+		}
+		else if (heap->data_cmp(node->right->data, smallest->data) <= 0)
+		{
+			smallest = node->right;
+		}
+	}
+
+	if (smallest != node)
+	{
+		swap_node_with_parent(smallest);
+		if (smallest->parent == NULL)
+			heap->root = smallest;
 		heapify(node, heap);
 	}
 }
