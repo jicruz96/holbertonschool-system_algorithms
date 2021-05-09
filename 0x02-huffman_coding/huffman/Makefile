@@ -8,8 +8,5 @@ FILENAME         = huffman
 
 $(FILENAME): $(SRC:.c=.o)
 	$(CC) $(CFLAGS) $(SRC) -o $(FILENAME)
-	mv huffman ../a.out
-	mv ../huffman ../huffman_dir
-	mv ../a.out ../huffman
 
 all: $(FILENAME)
