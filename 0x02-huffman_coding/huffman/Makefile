@@ -8,3 +8,5 @@ FILENAME         = huffman
 
 $(FILENAME): $(SRC:.c=.o)
 	$(CC) $(CFLAGS) $(SRC) -o $(FILENAME)
+
+all: $(FILENAME)
