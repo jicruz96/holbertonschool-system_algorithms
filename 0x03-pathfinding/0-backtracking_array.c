@@ -4,7 +4,7 @@
 #include <string.h>
 
 
-static queue_t *backtrack(char **map, char **visited, int rows, int cols,
+static queue_t *backtrack(char **map, char **seen, int rows, int cols,
 			int x, int y, point_t const *target, queue_t *queue);
 
 /**
@@ -21,54 +21,72 @@ queue_t *backtracking_array(char **map, int rows, int cols,
 			point_t const *start, point_t const *target)
 {
 	int i;
-	char **map_copy;
+	char **seen;
 	queue_t *queue;
 
 
 	if (!rows || !cols || !map || !start || !target)
 		return (NULL);
 
-	map_copy = malloc(sizeof(char *) * rows);
-	if (!map_copy)
-		return (NULL);
-	queue = malloc(sizeof(queue_t));
+	queue = queue_create();
 	if (!queue)
 		return (NULL);
+	seen = malloc(sizeof(char *) * rows);
+	if (!seen)
+		return (NULL);
 
 	for (i = 0; i < rows; i++)
-		map_copy[i] = strdup(map[i]);
+		seen[i] = strdup(map[i]);
 
-	backtrack(map, map_copy, rows, cols, start->x, start->y, target, queue);
+	backtrack(map, seen, rows, cols, start->x, start->y, target, queue);
 
 	for (i = 0; i < rows; i++)
-		free(map_copy[i]);
+		free(seen[i]);
 
-	free(map_copy);
+	free(seen);
 	return (queue);
 }
 
-static queue_t *backtrack(char **map, char **visited, int rows, int cols,
+/**
+ * backtrack - helper backtracking algorithm
+ *
+ * @map: pointer to 2d array map representation
+ * @seen: pointer to 2d array that keeps track of seen cells
+ * @rows: number of rows in map (and seen)
+ * @cols: number of columns in map (and seen)
+ * @x: current x position
+ * @y: current y position
+ * @target: target x, y position
+ * @queue: pointer to queue where final path will be stored.
+ * Return: pointer to queue
+ */
+static queue_t *backtrack(char **map, char **seen, int rows, int cols,
 			int x, int y, point_t const *target, queue_t *queue)
 {
 	point_t *point;
 
 	/* invalid point */
-	if (x < 0 || y < 0 || x >= cols || y >= rows || visited[y][x] == '1')
+	if (x < 0 || y < 0 || x >= cols || y >= rows || seen[y][x])
 		return (NULL);
 
-	visited[y][x] = '1';
+	seen[y][x] = 1;
 
 	printf("Checking coordinates [%d, %d]\n", x, y);
 
 	if (
 		(x == target->x && y == target->y) ||
-		backtrack(map, visited, rows, cols, x + 1, y, target, queue) ||
-		backtrack(map, visited, rows, cols, x, y + 1, target, queue) ||
-		backtrack(map, visited, rows, cols, x - 1, y, target, queue) ||
-		backtrack(map, visited, rows, cols, x, y - 1, target, queue)
+		backtrack(map, seen, rows, cols, x + 1, y, target, queue) ||
+		backtrack(map, seen, rows, cols, x, y + 1, target, queue) ||
+		backtrack(map, seen, rows, cols, x - 1, y, target, queue) ||
+		backtrack(map, seen, rows, cols, x, y - 1, target, queue)
 		)
 	{
 		point = malloc(sizeof(point_t));
+		if (!point)
+		{
+			queue_delete(queue);
+			return (NULL);
+		}
 		point->x = x;
 		point->y = y;
 		queue_push_front(queue, point);
