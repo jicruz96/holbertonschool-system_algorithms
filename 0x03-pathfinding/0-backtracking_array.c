@@ -33,7 +33,10 @@ queue_t *backtracking_array(char **map, int rows, int cols,
 		return (NULL);
 	seen = malloc(sizeof(char *) * rows);
 	if (!seen)
+	{
+		queue_delete(queue);
 		return (NULL);
+	}
 
 	for (i = 0; i < rows; i++)
 		seen[i] = strdup(map[i]);
@@ -66,10 +69,10 @@ static queue_t *backtrack(char **map, char **seen, int rows, int cols,
 	point_t *point;
 
 	/* invalid point */
-	if (x < 0 || y < 0 || x >= cols || y >= rows || seen[y][x])
+	if (x < 0 || y < 0 || x >= cols || y >= rows || seen[y][x] == '1')
 		return (NULL);
 
-	seen[y][x] = 1;
+	seen[y][x] = '1';
 
 	printf("Checking coordinates [%d, %d]\n", x, y);
 
