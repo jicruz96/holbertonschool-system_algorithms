@@ -109,6 +109,19 @@ typedef struct graph_s
 	vertex_t	*vertices;
 } graph_t;
 
+/**
+ * struct dijkstra_node_s - struct with information about a graph node
+ *                          to help us perform dijkstra's Algorithm
+ * @self: current position in graph (vertex_t)
+ * @via: previous position in graph (vertex_t)
+ * @weight: weight of path from start point
+ */
+typedef struct dijkstra_node_s
+{
+	vertex_t *self;
+	struct dijkstra_node_s *via;
+	int weight;
+} dk_node_t;
 
 /*
  * FUNCTIONS
