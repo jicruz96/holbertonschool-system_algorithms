@@ -1,6 +1,10 @@
 #include "pathfinding.h"
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
+static queue_t *backtrack(graph_t *graph, char *seen, vertex_t const *curr,
+			vertex_t const *target, queue_t *path);
 /**
  * backtracking_graph - searches for the first path from a starting point to a
  *                      target point in a graph.
@@ -14,7 +18,7 @@ queue_t *backtracking_graph(graph_t *graph, vertex_t const *start,
 			vertex_t const *target)
 {
 	queue_t *path;
-	char *seen;
+	char *tmp, *seen;
 
 	if (!graph || !start || !target)
 		return (NULL);
@@ -24,9 +28,19 @@ queue_t *backtracking_graph(graph_t *graph, vertex_t const *start,
 		return (NULL);
 	seen = calloc(graph->nb_vertices, sizeof(char));
 	if (!seen)
+	{
+		queue_delete(path);
 		return (NULL);
-
+	}
+	tmp = strdup((char *)start->content);
+	if (!tmp)
+	{
+		queue_delete(path);
+		free(seen);
+		return (NULL);
+	}
 	backtrack(graph, seen, start, target, path);
+	queue_push_front(path, tmp);
 	free(seen);
 	return (path);
 }
@@ -41,7 +55,7 @@ queue_t *backtracking_graph(graph_t *graph, vertex_t const *start,
  * @path: pointer to queue where final path will be stored.
  * Return: pointer to path
  */
-queue_t *backtrack(graph_t *graph, char *seen, vertex_t const *curr,
+static queue_t *backtrack(graph_t *graph, char *seen, vertex_t const *curr,
 			vertex_t const *target, queue_t *path)
 {
 	edge_t *edge;
