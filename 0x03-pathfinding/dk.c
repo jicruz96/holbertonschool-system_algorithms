@@ -1,4 +1,5 @@
-#include "graphs.h"
+#include <stdio.h>
+#include "dk.h"
 
 /**
  * dk_heap_pop - pops top item off a dijkstra heap
@@ -17,7 +18,7 @@ dk_node_t *dk_heap_pop(dk_node_t **heap, size_t *size)
 	tmp = heap[0];
 	*size -= 1;
 
-	for (i = 0; i < size; i++)
+	for (i = 0; i < *size; i++)
 		heap[i] = heap[i + 1];
 
 	heap[*size] = NULL;
@@ -32,13 +33,13 @@ dk_node_t *dk_heap_pop(dk_node_t **heap, size_t *size)
  */
 void dk_heap_push(dk_node_t *node, dk_node_t **heap, size_t *size)
 {
-	if (!node || !heap || !size)
+	if (!node || !heap)
 		return;
-
 	heap[*size] = node;
 	*size += 1;
 	dk_heap_sort(heap, *size);
 }
+
 
 /**
  * dk_heap_sort - sorts array of dijkstra nodes using heap sort algorithm
@@ -50,10 +51,8 @@ void dk_heap_sort(dk_node_t **heap, size_t size)
 	int i;
 	dk_node_t *tmp;
 
-
 	if (!heap || !(*heap) || !size)
 		return;
-
 	for (i = (size / 2) - 1; i >= 0; i--)
 		dk_heapify(heap, i, size);
 
@@ -80,14 +79,14 @@ void dk_heapify(dk_node_t **heap, size_t i, size_t size)
 	dk_node_t *tmp;
 
 
-	if (LEFT(i) < size && heap[LEFT(i)]->weight <= heap[i]->weight)
+	if (LEFT(i) < size && heap[LEFT(i)]->weight >= heap[i]->weight)
 	{
-		if (RIGHT(i) < size && heap[RIGHT(i)]->weight < heap[LEFT(i)]->weight)
+		if (RIGHT(i) < size && heap[RIGHT(i)]->weight > heap[LEFT(i)]->weight)
 			smallest = RIGHT(i);
 		else
 			smallest = LEFT(i);
 	}
-	else if (RIGHT(i) < size && heap[RIGHT(i)]->weight <= heap[i]->weight)
+	else if (RIGHT(i) < size && heap[RIGHT(i)]->weight >= heap[i]->weight)
 	{
 		smallest = RIGHT(i);
 	}
@@ -109,12 +108,18 @@ void dk_heapify(dk_node_t **heap, size_t i, size_t size)
  * @weight: weight of path from start to curr via prev
  * Return: pointer to new node
  */
-void dk_node_init(dk_node_t *node, vertex_t *curr, dk_node_t *via, int weight)
+dk_node_t *dk_node_init(dk_node_t *node, const vertex_t *vertex, 
+		const edge_t *edge, dk_node_t *via, int weight)
 {
 	if (node)
 	{
-		node->self = curr;
+		if (vertex)
+			node->self.vertex = vertex;
+		else
+			node->self.edge = edge;
 		node->via = via;
 		node->weight = weight;
 	}
+
+	return (node);
 }

@@ -1,6 +1,8 @@
 #include "pathfinding.h"
 #include "dk.c"
 #include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 static queue_t *make_result(dk_node_t *node);
 
@@ -16,45 +18,70 @@ static queue_t *make_result(dk_node_t *node);
 queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
 			vertex_t const *target)
 {
-	dk_node_t **heap, *dk_nodes, *node, *tmp;
+	dk_node_t **neighbors, **heap, *dk_nodes, *edges, *node, *tmp;
+	size_t i, heap_size = 0, neighbors_size = 0;
 	queue_t *queue;
-	edge_t *edge;
-	size_t size;
+	const edge_t *edge;
 
 	if (!graph || !start || !target)
 		return (NULL);
-	size     = 0;
-	dk_nodes = calloc(graph->nb_vertices, sizeof(dk_node_t));
-	heap     = calloc(graph->nb_vertices, sizeof(dk_node_t *));
-	queue    = NULL;
+	
+	dk_nodes  = calloc(graph->nb_vertices, sizeof(dk_node_t));
+	edges     = calloc(graph->nb_vertices, sizeof(dk_node_t));
+	heap      = calloc(graph->nb_vertices, sizeof(dk_node_t *));
+	neighbors = calloc(graph->nb_vertices, sizeof(dk_node_t *));
+	queue     = NULL;
+	
 	if (!dk_nodes || !heap)
 		goto CLEANUP;
-	dk_node_init(&dk_nodes[start->index], start, NULL, 0);
-	for (node = &dk_nodes[start->index]; node; node = dk_heap_pop(heap, &size))
+	
+	node = dk_node_init(&dk_nodes[start->index], start, NULL, NULL, 0);
+	
+	while (node)
 	{
-		if (node->self == target)
+		printf("Checking %s, distance from %s is %d\n",
+				(char *)node->self.vertex->content, 
+				(char *)start->content,
+				node->weight);
+		
+		if (node->self.vertex == target)
 		{
 			queue = make_result(node);
 			break;
 		}
-		for (edge = node->self->edges; edge; edge = edge->next)
+		
+		for (i = 0, edge = node->self.vertex->edges; i < node->self.vertex->nb_edges; edge = edge->next, i++)
 		{
-			tmp = &dk_nodes[edge->dest->index];
-			if (tmp->self == NULL)
+			dk_node_init(&edges[i], NULL, edge, node, edge->weight);
+			dk_heap_push(&edges[i], neighbors, &neighbors_size);
+			
+		}
+		tmp = dk_heap_pop(neighbors, &neighbors_size);
+		if (tmp)
+		{
+			for (edge = tmp->self.edge; edge; edge = tmp->self.edge)
 			{
-				dk_node_init(tmp, edge->dest, node, edge->weight);
-				dk_heap_push(tmp, heap, &size);
-			}
-			else if (tmp->weight > edge->weight + node->weight)
-			{
-				tmp->via = node, tmp->weight = edge->weight + node->weight;
-				dk_heap_push(tmp, heap, &size);
+				tmp = &dk_nodes[edge->dest->index];
+				if (tmp->self.vertex == NULL || tmp->weight > edge->weight + node->weight)
+				{
+					dk_node_init(tmp, edge->dest, NULL, node, edge->weight + node->weight);
+					dk_heap_push(tmp, heap, &heap_size);
+				}
+				tmp = dk_heap_pop(neighbors, &neighbors_size);
+				if (!tmp)
+					break;
+				
 			}
 		}
+		memset(edges, 0, sizeof(dk_node_t) * graph->nb_vertices);
+		node = dk_heap_pop(heap, &heap_size);
 	}
+
 CLEANUP:
 	free(dk_nodes);
 	free(heap);
+	free(neighbors);
+	free(edges);
 	return (queue);
 }
 
@@ -73,7 +100,7 @@ queue_t *make_result(dk_node_t *node)
 		return (NULL);
 	while (node)
 	{
-		s = strdup(node->self->content);
+		s = strdup(node->self.vertex->content);
 		if (!s)
 		{
 			queue_delete(queue);
