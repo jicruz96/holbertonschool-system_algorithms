@@ -162,11 +162,5 @@ void graph_delete(graph_t *graph);
 void graph_display(graph_t const *graph);
 
 
-/* Custom functions */
-edge_t *edge_heap_pop(edge_t **heap);
-void edge_heap_push(edge_t *node, edge_t **heap);
-void edge_heap_sort(edge_t **heap, size_t size);
-void edge_heapify(edge_t **heap, size_t i, size_t size);
-
 
 #endif /* !_GRAPHS_H_ */

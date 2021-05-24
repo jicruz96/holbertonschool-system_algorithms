@@ -36,6 +36,11 @@ void dk_heapify(dk_node_t **heap, size_t i, size_t size);
 dk_node_t *dk_node_init(const vertex_t *vertex, dk_node_t *via, int weight);
 
 
+edge_t *edge_heap_pop(edge_t **heap);
+void edge_heap_push(edge_t *node, edge_t **heap);
+void edge_heap_sort(edge_t **heap, size_t size);
+void edge_heapify(edge_t **heap, size_t i, size_t size);
+
 
 
 
