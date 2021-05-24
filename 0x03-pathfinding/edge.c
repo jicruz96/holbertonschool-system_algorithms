@@ -1,14 +1,14 @@
 #include <stdio.h>
-#include "dk.h"
+#include "graphs.h"
 
 /**
- * dk_heap_pop - pops top item off a dijkstra heap
+ * edge_heap_pop - pops top item off a dijkstra heap
  * @heap: pointer to heap
  * Return: popped node
  */
-dk_node_t *dk_heap_pop(dk_node_t **heap)
+edge_t *edge_heap_pop(edge_t **heap)
 {
-	dk_node_t *tmp;
+	edge_t *tmp;
 	size_t i;
 
 	if (!heap || !(*heap))
@@ -25,11 +25,11 @@ dk_node_t *dk_heap_pop(dk_node_t **heap)
 }
 
 /**
- * dk_heap_push - pushes item onto a dijkstra heap
+ * edge_heap_push - pushes item onto a dijkstra heap
  * @node: pointer to node to add to heap
  * @heap: pointer to heap
  */
-void dk_heap_push(dk_node_t *node, dk_node_t **heap)
+void edge_heap_push(edge_t *node, edge_t **heap)
 {
 	size_t i;
 
@@ -40,50 +40,46 @@ void dk_heap_push(dk_node_t *node, dk_node_t **heap)
 		;
 
 	heap[i] = node;
-	dk_heap_sort(heap, i + 1);
+	edge_heap_sort(heap, i + 1);
 }
 
 
 /**
- * dk_heap_sort - sorts array of dijkstra nodes using heap sort algorithm
+ * edge_heap_sort - sorts array of dijkstra nodes using heap sort algorithm
  * @heap: pointer to array of pointers to dijkstra nodes to be sorted by weight
  * @size: size of heap
  **/
-void dk_heap_sort(dk_node_t **heap, size_t size)
+void edge_heap_sort(edge_t **heap, size_t size)
 {
-	int i, size;
-	dk_node_t *tmp;
+	int i;
+	edge_t *tmp;
 
 	if (!heap || !(*heap) || !size)
 		return;
-
-	for (size = 0; heap[size]; size++)
-		;
-
 	for (i = (size / 2) - 1; i >= 0; i--)
-		dk_heapify(heap, i, size);
+		edge_heapify(heap, i, size);
 
 	for (i = size - 1; i > 0; i--)
 	{
 		tmp = heap[0];
 		heap[0] = heap[i];
 		heap[i] = tmp;
-		dk_heapify(heap, 0, i);
+		edge_heapify(heap, 0, i);
 	}
 }
 
 /**
- * dk_heapify - turn an array of dijkstra nodes into a min heap
+ * edge_heapify - turn an array of dijkstra nodes into a min heap
  * @heap: heap
  * @i: current index in heap to inspect
  * @size: size of heap
  **/
-void dk_heapify(dk_node_t **heap, size_t i, size_t size)
+void edge_heapify(edge_t **heap, size_t i, size_t size)
 {
 	#define LEFT(x) ((2 * (x)) + 1)
 	#define RIGHT(x) ((2 * (x)) + 2)
 	size_t smallest = i;
-	dk_node_t *tmp;
+	edge_t *tmp;
 
 
 	if (LEFT(i) < size && heap[LEFT(i)]->weight >= heap[i]->weight)
@@ -103,27 +99,6 @@ void dk_heapify(dk_node_t **heap, size_t i, size_t size)
 		tmp = heap[smallest];
 		heap[smallest] = heap[i];
 		heap[i] = tmp;
-		dk_heapify(heap, smallest, size);
+		edge_heapify(heap, smallest, size);
 	}
-}
-
-/**
- * dk_node_init - initializes a dk_node_t data structure
- * @vertex: current position in graph (vertex_t)
- * @via: previous postion in graph (dk_node_t)
- * @weight: weight of path from start to curr via prev
- * Return: pointer to new node
- */
-dk_node_t *dk_node_init(const vertex_t *vertex, dk_node_t *via, int weight)
-{
-	dk_node_t *node = malloc(sizeof(dk_node_t));
-
-	if (node)
-	{
-		node->vertex = vertex;
-		node->via = via;
-		node->weight = weight;
-	}
-
-	return (node);
 }

@@ -18,22 +18,30 @@ typedef union dijkstra_node_self_s
 /**
  * struct dijkstra_node_s - struct with information about a graph node
  *                          to help us perform dijkstra's Algorithm
- * @self: current position in graph (vertex_t)
- * @via: previous position in graph (vertex_t)
+ * @vertex: current position in graph (vertex_t)
+ * @via: previous position in graph (dijkstra_node_s)
  * @weight: weight of path from start point
  */
 typedef struct dijkstra_node_s
 {
-	dk_node_self_t self;
+	const vertex_t *vertex;
 	struct dijkstra_node_s *via;
 	int weight;
 } dk_node_t;
 
-dk_node_t *dk_heap_pop(dk_node_t **heap, size_t *size);
-void dk_heap_push(dk_node_t *node, dk_node_t **heap, size_t *size);
+dk_node_t *dk_heap_pop(dk_node_t **heap);
+void dk_heap_push(dk_node_t *node, dk_node_t **heap);
 void dk_heap_sort(dk_node_t **heap, size_t size);
 void dk_heapify(dk_node_t **heap, size_t i, size_t size);
-dk_node_t *dk_node_init(dk_node_t *node, const vertex_t *vertex, 
-		const edge_t *edge, dk_node_t *via, int weight);
+dk_node_t *dk_node_init(const vertex_t *vertex, dk_node_t *via, int weight);
+
+
+a_t *init(size_t heap_sizes);
+void print_msg(dk_node_t *node, const vertex_t *start);
+queue_t *find_result(a_t *thing);
+void del(a_t *thing);
+
+
+
 
 #endif /* _DK_H_ */

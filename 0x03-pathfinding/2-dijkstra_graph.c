@@ -1,11 +1,14 @@
 #include "pathfinding.h"
-#include "dk.c"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "dk.c"
+#include "edge.c"
 
+static void print_msg(dk_node_t *node, const vertex_t *start);
 static queue_t *make_result(dk_node_t *node);
-
+static int eval_neighbors(dk_node_t *node, edge_t *edges,
+		dk_node_t **seen, dk_node_t **dk_heap);
 /**
  * dijkstra_graph - searches for the shortest path from a starting point to a
  *                  target point in a graph.
@@ -18,71 +21,83 @@ static queue_t *make_result(dk_node_t *node);
 queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
 			vertex_t const *target)
 {
-	dk_node_t **neighbors, **heap, *dk_nodes, *edges, *node, *tmp;
-	size_t i, heap_size = 0, neighbors_size = 0;
-	queue_t *queue;
-	const edge_t *edge;
+	dk_node_t *node = NULL, **seen = NULL, **dk_heap = NULL;
+	edge_t **edges = NULL;
+	queue_t *queue = NULL;
 
-	if (!graph || !start || !target)
-		return (NULL);
-	
-	dk_nodes  = calloc(graph->nb_vertices, sizeof(dk_node_t));
-	edges     = calloc(graph->nb_vertices, sizeof(dk_node_t));
-	heap      = calloc(graph->nb_vertices, sizeof(dk_node_t *));
-	neighbors = calloc(graph->nb_vertices, sizeof(dk_node_t *));
-	queue     = NULL;
-	
-	if (!dk_nodes || !heap)
-		goto CLEANUP;
-	
-	node = dk_node_init(&dk_nodes[start->index], start, NULL, NULL, 0);
-	
-	while (node)
+	if
+	(
+		graph && start && target &&
+		(edges   = calloc(graph->nb_vertices, sizeof(edge_t *   ))) &&
+		(seen    = calloc(graph->nb_vertices, sizeof(dk_node_t *))) &&
+		(dk_heap = calloc(graph->nb_vertices, sizeof(dk_node_t *))) &&
+		(seen[start->index] = dk_node_init(start, NULL, 0))
+	)
 	{
-		printf("Checking %s, distance from %s is %d\n",
-				(char *)node->self.vertex->content, 
-				(char *)start->content,
-				node->weight);
-		
-		if (node->self.vertex == target)
+		dk_heap_push(&seen[start->index], dk_heap);
+
+		while ((node = dk_heap_pop(dk_heap)))
 		{
-			queue = make_result(node);
-			break;
-		}
-		
-		for (i = 0, edge = node->self.vertex->edges; i < node->self.vertex->nb_edges; edge = edge->next, i++)
-		{
-			dk_node_init(&edges[i], NULL, edge, node, edge->weight);
-			dk_heap_push(&edges[i], neighbors, &neighbors_size);
-			
-		}
-		tmp = dk_heap_pop(neighbors, &neighbors_size);
-		if (tmp)
-		{
-			for (edge = tmp->self.edge; edge; edge = tmp->self.edge)
+			print_msg(node, start);
+
+			if (node->vertex == target)
 			{
-				tmp = &dk_nodes[edge->dest->index];
-				if (tmp->self.vertex == NULL || tmp->weight > edge->weight + node->weight)
-				{
-					dk_node_init(tmp, edge->dest, NULL, node, edge->weight + node->weight);
-					dk_heap_push(tmp, heap, &heap_size);
-				}
-				tmp = dk_heap_pop(neighbors, &neighbors_size);
-				if (!tmp)
-					break;
-				
+				queue = make_result(node);
+				break;
 			}
+
+			if (eval_neighbors(node, edges, seen, dk_heap) == -1)
+				break;
 		}
-		memset(edges, 0, sizeof(dk_node_t) * graph->nb_vertices);
-		node = dk_heap_pop(heap, &heap_size);
 	}
 
-CLEANUP:
-	free(dk_nodes);
-	free(heap);
-	free(neighbors);
+	if (seen)
+		for (node = *seen; node; node++)
+			free(node);
+	free(seen);
 	free(edges);
+	free(dk_heap);
 	return (queue);
+}
+
+static int eval_neighbors(dk_node_t *node, edge_t *edges,
+		dk_node_t **seen, dk_node_t **dk_heap)
+{
+	edge_t *edge;
+	vertex_t *vertex;
+	int weight;
+
+	for (edge = node->vertex->edges; edge; edge = edge->next)
+		edge_heap_push(edge, edges);
+
+	for (edge = edge_heap_pop(edges); edge; edge = edge_heap_pop(edges))
+	{
+		vertex = edge->dest, weight = edge->weight + node->weight;
+
+		if (!seen[vertex->index])
+			if (!(seen[vertex->index] = dk_node_init(vertex, node, weight)))
+				return (-1);
+
+		if (weight < seen[vertex->index]->weight)
+		{
+			seen[vertex->index]->via = node;
+			seen[vertex->index]->weight = weight;
+			dk_heap_push(seen[vertex->index], dk_heap);
+		}
+	}
+
+	return (0);
+}
+
+static void print_msg(dk_node_t *node, const vertex_t *start)
+{
+	if (node && start)
+	{
+		printf("Checking %s, distance from %s is %d\n",
+				(char *)node->vertex->content,
+				(char *)start->content,
+				node->weight);
+	}
 }
 
 /**
@@ -90,17 +105,19 @@ CLEANUP:
  * @node: dijkstra node
  * Return: queue of city names from start to dest
  */
-queue_t *make_result(dk_node_t *node)
+static queue_t *make_result(dk_node_t *node)
 {
 	queue_t *queue;
 	char *s;
 
+	if (!node)
+		return (NULL);
 	queue = queue_create();
 	if (!queue)
 		return (NULL);
 	while (node)
 	{
-		s = strdup(node->self.vertex->content);
+		s = strdup(node->vertex->content);
 		if (!s)
 		{
 			queue_delete(queue);
