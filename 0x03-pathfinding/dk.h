@@ -39,5 +39,4 @@ dk_node_t *dk_node_init(const vertex_t *vertex, dk_node_t *via, int weight);
 
 
 
-
 #endif /* _DK_H_ */
