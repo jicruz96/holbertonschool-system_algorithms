@@ -11,16 +11,18 @@ dk_node_t *dk_heap_pop(dk_node_t **heap)
 	dk_node_t *tmp;
 	size_t i;
 
+	printf("poppin'!\n");
 	if (!heap || !(*heap))
 		return (NULL);
-
+	printf("assignin'\n");
 	tmp = heap[0];
-
+	printf("adjustin'\n");
 	for (i = 0; heap[i + 1]; i++)
-		heap[i] = heap[i + 1];
-
+		printf("."), heap[i] = heap[i + 1];
+	printf("\n");
 	heap[i] = NULL;
-
+	
+	printf("returnin'\n");
 	return (tmp);
 }
 
@@ -51,14 +53,11 @@ void dk_heap_push(dk_node_t *node, dk_node_t **heap)
  **/
 void dk_heap_sort(dk_node_t **heap, size_t size)
 {
-	int i, size;
+	int i;
 	dk_node_t *tmp;
 
 	if (!heap || !(*heap) || !size)
 		return;
-
-	for (size = 0; heap[size]; size++)
-		;
 
 	for (i = (size / 2) - 1; i >= 0; i--)
 		dk_heapify(heap, i, size);

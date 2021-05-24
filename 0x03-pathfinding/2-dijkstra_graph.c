@@ -7,7 +7,7 @@
 
 static void print_msg(dk_node_t *node, const vertex_t *start);
 static queue_t *make_result(dk_node_t *node);
-static int eval_neighbors(dk_node_t *node, edge_t *edges,
+static int eval_neighbors(dk_node_t *node, edge_t **edges,
 		dk_node_t **seen, dk_node_t **dk_heap);
 /**
  * dijkstra_graph - searches for the shortest path from a starting point to a
@@ -24,20 +24,24 @@ queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
 	dk_node_t *node = NULL, **seen = NULL, **dk_heap = NULL;
 	edge_t **edges = NULL;
 	queue_t *queue = NULL;
+	size_t i;
+
+	if (!graph || !start || !target)
+		return (NULL);
 
 	if
 	(
-		graph && start && target &&
 		(edges   = calloc(graph->nb_vertices, sizeof(edge_t *   ))) &&
 		(seen    = calloc(graph->nb_vertices, sizeof(dk_node_t *))) &&
 		(dk_heap = calloc(graph->nb_vertices, sizeof(dk_node_t *))) &&
 		(seen[start->index] = dk_node_init(start, NULL, 0))
 	)
 	{
-		dk_heap_push(&seen[start->index], dk_heap);
+		dk_heap_push(seen[start->index], dk_heap);
 
 		while ((node = dk_heap_pop(dk_heap)))
 		{
+			printf("nodin'\n");
 			print_msg(node, start);
 
 			if (node->vertex == target)
@@ -45,31 +49,31 @@ queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
 				queue = make_result(node);
 				break;
 			}
-
 			if (eval_neighbors(node, edges, seen, dk_heap) == -1)
 				break;
+			printf("time for next node!\n-----------\n");
 		}
 	}
 
-	if (seen)
-		for (node = *seen; node; node++)
-			free(node);
+	for (i = 0; i < graph->nb_vertices; i++)
+		free(node);
 	free(seen);
 	free(edges);
 	free(dk_heap);
 	return (queue);
 }
 
-static int eval_neighbors(dk_node_t *node, edge_t *edges,
+static int eval_neighbors(dk_node_t *node, edge_t **edges,
 		dk_node_t **seen, dk_node_t **dk_heap)
 {
 	edge_t *edge;
 	vertex_t *vertex;
 	int weight;
 
+	printf("eval time -- sorting\n");
 	for (edge = node->vertex->edges; edge; edge = edge->next)
 		edge_heap_push(edge, edges);
-
+	printf("evaluating\n");
 	for (edge = edge_heap_pop(edges); edge; edge = edge_heap_pop(edges))
 	{
 		vertex = edge->dest, weight = edge->weight + node->weight;
@@ -85,6 +89,7 @@ static int eval_neighbors(dk_node_t *node, edge_t *edges,
 			dk_heap_push(seen[vertex->index], dk_heap);
 		}
 	}
+	printf("eval complete\n");
 
 	return (0);
 }

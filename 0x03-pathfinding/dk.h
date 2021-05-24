@@ -36,10 +36,6 @@ void dk_heapify(dk_node_t **heap, size_t i, size_t size);
 dk_node_t *dk_node_init(const vertex_t *vertex, dk_node_t *via, int weight);
 
 
-a_t *init(size_t heap_sizes);
-void print_msg(dk_node_t *node, const vertex_t *start);
-queue_t *find_result(a_t *thing);
-void del(a_t *thing);
 
 
 
