@@ -63,6 +63,14 @@ queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
 	return (queue);
 }
 
+/**
+ * eval_neighbors - evaluates the neighbors of a graph vertex
+ * @node: node
+ * @edges: edges heap
+ * @seen: seen array
+ * @dk_heap: vertex heap
+ * Return: 1 on failure | 0 on success
+ **/
 static int eval_neighbors(dk_node_t *node, edge_t **edges,
 		dk_node_t **seen, dk_node_t **dk_heap)
 {
