@@ -19,20 +19,21 @@ static queue_t *add_city(char *city, queue_t *queue);
 queue_t *backtracking_graph(graph_t *graph, vertex_t const *start,
 			vertex_t const *target)
 {
-	queue_t *path;
-	char *seen;
+	queue_t *path = NULL;
+	char *seen = NULL;
 
-	if (!graph || !start || !target)
-		return (NULL);
-
-	path = queue_create();
-	seen = calloc(graph->nb_vertices, sizeof(char));
-	if (!path || !seen || !backtrack(graph, seen, start, target, path))
+	if
+	(
+		!graph || !start || !target || !(path = queue_create()) ||
+		!(seen = calloc(graph->nb_vertices, sizeof(char))) ||
+		!backtrack(graph, seen, start, target, path)
+	)
 	{
 		queue_delete(path);
 		free(seen);
 		return (NULL);
 	}
+
 	free(seen);
 	return (add_city(strdup(start->content), path));
 }
