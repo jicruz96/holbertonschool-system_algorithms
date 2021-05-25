@@ -44,7 +44,7 @@ queue_t *a_star_graph(graph_t *graph, vertex_t const *start,
 
 		while ((node = a_heap_pop(a_heap)))
 		{
-			print_msg(node, start);
+			print_msg(node, target);
 
 			if (node->vertex == target)
 			{
@@ -109,15 +109,15 @@ static int eval_neighbors(a_node_t *node, edge_t **edges,
 /**
  * print_msg - prints current position and distance from start
  * @node: pointer to a_node
- * @start: pointer to starting position
+ * @target: pointer to target position
  **/
-static void print_msg(a_node_t *node, const vertex_t *start)
+static void print_msg(a_node_t *node, const vertex_t *target)
 {
-	if (node && start)
+	if (node && target)
 	{
-		printf("Checking %s, distance from %s is %d\n",
+		printf("Checking %s, distance to %s is %d\n",
 				(char *)node->vertex->content,
-				(char *)start->content,
+				(char *)target->content,
 				(int)node->distance);
 	}
 }
