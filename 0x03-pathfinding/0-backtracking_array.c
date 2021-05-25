@@ -76,13 +76,14 @@ static queue_t *backtrack(char **map, char **seen, int rows, int cols,
 
 	printf("Checking coordinates [%d, %d]\n", x, y);
 
-	if (
+	if
+	(
 		(x == target->x && y == target->y) ||
 		backtrack(map, seen, rows, cols, x + 1, y, target, queue) ||
 		backtrack(map, seen, rows, cols, x, y + 1, target, queue) ||
 		backtrack(map, seen, rows, cols, x - 1, y, target, queue) ||
 		backtrack(map, seen, rows, cols, x, y - 1, target, queue)
-		)
+	)
 	{
 		point = malloc(sizeof(point_t));
 		if (!point)
