@@ -21,8 +21,8 @@ queue_t *backtracking_array(char **map, int rows, int cols,
 			point_t const *start, point_t const *target)
 {
 	int i;
-	char **seen;
-	queue_t *queue;
+	char **seen = NULL;
+	queue_t *queue = NULL;
 
 
 	if
