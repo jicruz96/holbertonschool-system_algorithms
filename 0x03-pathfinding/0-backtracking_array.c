@@ -25,23 +25,23 @@ queue_t *backtracking_array(char **map, int rows, int cols,
 	queue_t *queue;
 
 
-	if (!rows || !cols || !map || !start || !target)
-		return (NULL);
-
-	queue = queue_create();
-	if (!queue)
-		return (NULL);
-	seen = malloc(sizeof(char *) * rows);
-	if (!seen)
+	if
+	(
+		!rows || !cols || !map || !start || !target ||
+		!(queue = queue_create()) ||
+		!(seen = malloc(sizeof(char *) * rows))
+	)
 	{
 		queue_delete(queue);
+		free(seen);
 		return (NULL);
 	}
 
 	for (i = 0; i < rows; i++)
 		seen[i] = strdup(map[i]);
 
-	backtrack(map, seen, rows, cols, start->x, start->y, target, queue);
+	if (!backtrack(map, seen, rows, cols, start->x, start->y, target, queue))
+		queue_delete(queue), queue = NULL;
 
 	for (i = 0; i < rows; i++)
 		free(seen[i]);
