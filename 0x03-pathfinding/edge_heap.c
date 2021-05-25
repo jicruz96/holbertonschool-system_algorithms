@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "graphs.h"
+#include "edge_heap.h"
 
 /**
  * edge_heap_pop - pops top item off a dijkstra heap

@@ -1,128 +1,161 @@
+#include "pathfinding.h"
+#include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
-#include "dk.h"
+#include "dijkstra_heap.h"
+#include "heap.h"
+
+static void print_msg(dijkstra_node_t *node, const vertex_t *start);
+static queue_t *make_result(dijkstra_node_t *node);
+static int eval_neighbors(dijkstra_node_t *node, edge_t **edge_heap,
+		dijkstra_node_t **seen, dijkstra_node_t **heap);
+
 
 /**
- * dk_heap_pop - pops top item off a dijkstra heap
- * @heap: pointer to heap
- * Return: popped node
- */
-dk_node_t *dk_heap_pop(dk_node_t **heap)
+ * dijkstra_graph - searches for the shortest path from a starting point to a
+ *                  target point in a graph.
+ * @graph: pointer to the graph to go through
+ * @start: pointer to the starting vertex
+ * @target: pointer to the target vertex
+ * Return: queue of strings corresponding to a vertex, forming a path from
+ *         start to target
+ **/
+queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
+			vertex_t const *target)
 {
-	dk_node_t *tmp;
+	dijkstra_node_t *node = NULL, **seen = NULL, **heap = NULL;
+	edge_t **edge_heap = NULL;
+	queue_t *queue = NULL;
 	size_t i;
 
-	if (!heap || !(*heap))
+	if (!graph || !start || !target)
 		return (NULL);
-	tmp = heap[0];
-	for (i = 0; heap[i + 1]; i++)
-		heap[i] = heap[i + 1];
-	heap[i] = NULL;
 
-	return (tmp);
-}
+	if
+	(
+		(edge_heap = heap_init(graph->nb_vertices, edge_compare)) &&
+		(seen      = calloc(graph->nb_vertices, sizeof(dijkstra_node_t *))) &&
+		(heap      = heap_init(graph->nb_vertices, dijkstra_compare)) &&
+		(seen[start->index] = dijkstra_node_init(start, NULL, 0))
+	)
+	{
+		heap_push(seen[start->index], heap);
 
-/**
- * dk_heap_push - pushes item onto a dijkstra heap
- * @node: pointer to node to add to heap
- * @heap: pointer to heap
- */
-void dk_heap_push(dk_node_t *node, dk_node_t **heap)
-{
-	size_t i;
-
-	if (!node || !heap)
-		return;
-	for (i = 0; heap[i]; i++)
-		if (node == heap[i])
+		while ((node = heap_pop(heap)))
 		{
-			while (heap[i])
-				i++;
-			dk_heap_sort(heap, i);
-			return;
+			print_msg(node, start);
+
+			if (node->vertex == target)
+			{
+				queue = make_result(node);
+				break;
+			}
+			if (eval_neighbors(node, edge_heap, seen, heap) == -1)
+				break;
 		}
+	}
 
-	heap[i] = node;
-	dk_heap_sort(heap, i + 1);
+	for (i = 0; i < graph->nb_vertices; i++)
+		free(seen[i]);
+	free(seen);
+	heap_delete(edge_heap);
+	heap_delete(heap);
+	return (queue);
 }
 
-
 /**
- * dk_heap_sort - sorts array of dijkstra nodes using heap sort algorithm
- * @heap: pointer to array of pointers to dijkstra nodes to be sorted by weight
- * @size: size of heap
+ * eval_neighbors - evaluates the neighbors of a graph vertex
+ * @node: node
+ * @edge_heap: edge_heap heap
+ * @seen: seen array
+ * @heap: vertex heap
+ * Return: 1 on failure | 0 on success
  **/
-void dk_heap_sort(dk_node_t **heap, size_t size)
+static int eval_neighbors(dijkstra_node_t *node, edge_t **edge_heap,
+		dijkstra_node_t **seen, dijkstra_node_t **heap)
 {
-	int i;
-	dk_node_t *tmp;
+	edge_t *edge;
+	vertex_t *vertex;
+	int weight;
 
-	if (!heap || !(*heap) || !size)
-		return;
+	/* Sort edge_heap */
+	for (edge = node->vertex->edges; edge; edge = edge->next)
+		heap_push(edge, edge_heap);
 
-	for (i = (size / 2) - 1; i >= 0; i--)
-		dk_heapify(heap, i, size);
-
-	for (i = size - 1; i > 0; i--)
+	/* For each edge, check its destination vertex */
+	for (edge = heap_pop(edge_heap); edge; edge = heap_pop(edge_heap))
 	{
-		tmp = heap[0];
-		heap[0] = heap[i];
-		heap[i] = tmp;
-		dk_heapify(heap, 0, i);
+
+		vertex = edge->dest;
+		weight = edge->weight + node->weight;
+		/**
+		 * if vertex has not been seen, add to seen and vertex heap.
+		 * else if path weight to vertex via this edge is shorter than the
+		 * known path/weight to vertex, update seen[vertex->index].
+		 */
+		if (!seen[vertex->index])
+		{
+			if (!(seen[vertex->index] = dijkstra_node_init(vertex, node, weight)))
+				return (-1);
+			heap_push(seen[vertex->index], heap);
+		}
+		else if (weight < seen[vertex->index]->weight)
+		{
+
+			seen[vertex->index]->via = node;
+			seen[vertex->index]->weight = weight;
+			if (!in_heap(heap, seen[vertex->index]))
+				heap_push(seen[vertex->index], heap);
+			else
+				heap_sort(heap);
+		}
 	}
+
+	return (0);
 }
 
 /**
- * dk_heapify - turn an array of dijkstra nodes into a min heap
- * @heap: heap
- * @i: current index in heap to inspect
- * @size: size of heap
+ * print_msg - prints current position and distance from start
+ * @node: pointer to dijkstra_node
+ * @start: pointer to starting position
  **/
-void dk_heapify(dk_node_t **heap, size_t i, size_t size)
+static void print_msg(dijkstra_node_t *node, const vertex_t *start)
 {
-	#define LEFT(x) ((2 * (x)) + 1)
-	#define RIGHT(x) ((2 * (x)) + 2)
-	size_t smallest = i;
-	dk_node_t *tmp;
-
-
-	if (LEFT(i) < size && heap[LEFT(i)]->weight >= heap[i]->weight)
+	if (node && start)
 	{
-		if (RIGHT(i) < size && heap[RIGHT(i)]->weight > heap[LEFT(i)]->weight)
-			smallest = RIGHT(i);
-		else
-			smallest = LEFT(i);
-	}
-	else if (RIGHT(i) < size && heap[RIGHT(i)]->weight >= heap[i]->weight)
-	{
-		smallest = RIGHT(i);
-	}
-
-	if (smallest != i)
-	{
-		tmp = heap[smallest];
-		heap[smallest] = heap[i];
-		heap[i] = tmp;
-		dk_heapify(heap, smallest, size);
+		printf("Checking %s, distance from %s is %d\n",
+				(char *)node->vertex->content,
+				(char *)start->content,
+				node->weight);
 	}
 }
 
 /**
- * dk_node_init - initializes a dk_node_t data structure
- * @vertex: current position in graph (vertex_t)
- * @via: previous postion in graph (dk_node_t)
- * @weight: weight of path from start to curr via prev
- * Return: pointer to new node
+ * make_result - makes result
+ * @node: dijkstra node
+ * Return: queue of city names from start to dest
  */
-dk_node_t *dk_node_init(const vertex_t *vertex, dk_node_t *via, int weight)
+static queue_t *make_result(dijkstra_node_t *node)
 {
-	dk_node_t *node = malloc(sizeof(dk_node_t));
+	queue_t *queue;
+	char *s;
 
-	if (node)
+	if (!node)
+		return (NULL);
+	queue = queue_create();
+	if (!queue)
+		return (NULL);
+	while (node)
 	{
-		node->vertex = vertex;
-		node->via = via;
-		node->weight = weight;
+		s = strdup(node->vertex->content);
+		if (!s)
+		{
+			queue_delete(queue);
+			return (NULL);
+		}
+		queue_push_front(queue, s);
+		node = node->via;
 	}
 
-	return (node);
+	return (queue);
 }

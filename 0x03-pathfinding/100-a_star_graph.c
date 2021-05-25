@@ -3,13 +3,13 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
-#include "a.c"
-#include "edge.c"
+#include "a_star.c"
+#include "edge_heap.c"
 
-static void print_msg(a_node_t *node, const vertex_t *start);
-static queue_t *make_result(a_node_t *node);
-static int eval_neighbors(a_node_t *node, edge_t **edges,
-		a_node_t **seen, a_node_t **a_heap, const vertex_t *target);
+static void print_msg(a_star_node_t *node, const vertex_t *start);
+static queue_t *make_result(a_star_node_t *node);
+static int eval_neighbors(a_star_node_t *node, edge_t **edges,
+		a_star_node_t **seen, a_star_node_t **a_star_heap, const vertex_t *target);
 
 
 /**
@@ -24,7 +24,7 @@ static int eval_neighbors(a_node_t *node, edge_t **edges,
 queue_t *a_star_graph(graph_t *graph, vertex_t const *start,
 			vertex_t const *target)
 {
-	a_node_t *node = NULL, **seen = NULL, **a_heap = NULL;
+	a_star_node_t *node = NULL, **seen = NULL, **a_star_heap = NULL;
 	edge_t **edges = NULL;
 	queue_t *queue = NULL;
 	size_t i;
@@ -35,14 +35,14 @@ queue_t *a_star_graph(graph_t *graph, vertex_t const *start,
 	if
 	(
 		(edges   = calloc(graph->nb_vertices, sizeof(edge_t *))) &&
-		(seen    = calloc(graph->nb_vertices, sizeof(a_node_t *))) &&
-		(a_heap = calloc(graph->nb_vertices, sizeof(a_node_t *))) &&
-		(seen[start->index] = a_node_init(start, NULL, 0, target))
+		(seen    = calloc(graph->nb_vertices, sizeof(a_star_node_t *))) &&
+		(a_star_heap = calloc(graph->nb_vertices, sizeof(a_star_node_t *))) &&
+		(seen[start->index] = a_star_node_init(start, NULL, 0, target))
 	)
 	{
-		a_heap_push(seen[start->index], a_heap);
+		a_star_heap_push(seen[start->index], a_star_heap);
 
-		while ((node = a_heap_pop(a_heap)))
+		while ((node = a_star_heap_pop(a_star_heap)))
 		{
 			print_msg(node, target);
 
@@ -51,7 +51,7 @@ queue_t *a_star_graph(graph_t *graph, vertex_t const *start,
 				queue = make_result(node);
 				break;
 			}
-			if (eval_neighbors(node, edges, seen, a_heap, target) == -1)
+			if (eval_neighbors(node, edges, seen, a_star_heap, target) == -1)
 				break;
 		}
 	}
@@ -60,7 +60,7 @@ queue_t *a_star_graph(graph_t *graph, vertex_t const *start,
 		free(seen[i]);
 	free(seen);
 	free(edges);
-	free(a_heap);
+	free(a_star_heap);
 	return (queue);
 }
 
@@ -69,12 +69,12 @@ queue_t *a_star_graph(graph_t *graph, vertex_t const *start,
  * @node: node
  * @edges: edges heap
  * @seen: seen array
- * @a_heap: vertex heap
+ * @a_star_heap: vertex heap
  * @target: target
  * Return: 1 on failure | 0 on success
  **/
-static int eval_neighbors(a_node_t *node, edge_t **edges,
-		a_node_t **seen, a_node_t **a_heap, const vertex_t *target)
+static int eval_neighbors(a_star_node_t *node, edge_t **edges,
+		a_star_node_t **seen, a_star_node_t **a_star_heap, const vertex_t *target)
 {
 	edge_t *edge;
 	vertex_t *vertex;
@@ -91,15 +91,15 @@ static int eval_neighbors(a_node_t *node, edge_t **edges,
 
 		if (!seen[vertex->index])
 		{
-			if (!(seen[vertex->index] = a_node_init(vertex, node, weight, target)))
+			if (!(seen[vertex->index] = a_star_node_init(vertex, node, weight, target)))
 				return (-1);
-			a_heap_push(seen[vertex->index], a_heap);
+			a_star_heap_push(seen[vertex->index], a_star_heap);
 		}
 		else if (weight < seen[vertex->index]->weight)
 		{
 			seen[vertex->index]->via = node;
 			seen[vertex->index]->weight = weight;
-			a_heap_push(seen[vertex->index], a_heap);
+			a_star_heap_push(seen[vertex->index], a_star_heap);
 		}
 	}
 
@@ -108,10 +108,10 @@ static int eval_neighbors(a_node_t *node, edge_t **edges,
 
 /**
  * print_msg - prints current position and distance from start
- * @node: pointer to a_node
+ * @node: pointer to a_star_node
  * @target: pointer to target position
  **/
-static void print_msg(a_node_t *node, const vertex_t *target)
+static void print_msg(a_star_node_t *node, const vertex_t *target)
 {
 	if (node && target)
 	{
@@ -127,7 +127,7 @@ static void print_msg(a_node_t *node, const vertex_t *target)
  * @node: dijkstra node
  * Return: queue of city names from start to dest
  */
-static queue_t *make_result(a_node_t *node)
+static queue_t *make_result(a_star_node_t *node)
 {
 	queue_t *queue;
 	char *s;

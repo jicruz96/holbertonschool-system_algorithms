@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "dk.c"
-#include "edge.c"
+#include "dijkstra_heap.c"
+#include "edge_heap.c"
 
-static void print_msg(dk_node_t *node, const vertex_t *start);
-static queue_t *make_result(dk_node_t *node);
-static int eval_neighbors(dk_node_t *node, edge_t **edges,
-		dk_node_t **seen, dk_node_t **dk_heap);
+static void print_msg(dijkstra_node_t *node, const vertex_t *start);
+static queue_t *make_result(dijkstra_node_t *node);
+static int eval_neighbors(dijkstra_node_t *node, edge_t **edge_heap,
+		dijkstra_node_t **seen, dijkstra_node_t **heap);
 
 
 /**
@@ -23,8 +23,8 @@ static int eval_neighbors(dk_node_t *node, edge_t **edges,
 queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
 			vertex_t const *target)
 {
-	dk_node_t *node = NULL, **seen = NULL, **dk_heap = NULL;
-	edge_t **edges = NULL;
+	dijkstra_node_t *node = NULL, **seen = NULL, **heap = NULL;
+	edge_t **edge_heap = NULL;
 	queue_t *queue = NULL;
 	size_t i;
 
@@ -33,15 +33,15 @@ queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
 
 	if
 	(
-		(edges   = calloc(graph->nb_vertices, sizeof(edge_t *))) &&
-		(seen    = calloc(graph->nb_vertices, sizeof(dk_node_t *))) &&
-		(dk_heap = calloc(graph->nb_vertices, sizeof(dk_node_t *))) &&
-		(seen[start->index] = dk_node_init(start, NULL, 0))
+		(edge_heap = calloc(graph->nb_vertices, sizeof(edge_t *))) &&
+		(seen      = calloc(graph->nb_vertices, sizeof(dijkstra_node_t *))) &&
+		(heap      = calloc(graph->nb_vertices, sizeof(dijkstra_node_t *))) &&
+		(seen[start->index] = dijkstra_node_init(start, NULL, 0))
 	)
 	{
-		dk_heap_push(seen[start->index], dk_heap);
+		dijkstra_heap_push(seen[start->index], heap);
 
-		while ((node = dk_heap_pop(dk_heap)))
+		while ((node = dijkstra_heap_pop(heap)))
 		{
 			print_msg(node, start);
 
@@ -50,7 +50,7 @@ queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
 				queue = make_result(node);
 				break;
 			}
-			if (eval_neighbors(node, edges, seen, dk_heap) == -1)
+			if (eval_neighbors(node, edge_heap, seen, heap) == -1)
 				break;
 		}
 	}
@@ -58,52 +58,52 @@ queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
 	for (i = 0; i < graph->nb_vertices; i++)
 		free(seen[i]);
 	free(seen);
-	free(edges);
-	free(dk_heap);
+	free(edge_heap);
+	free(heap);
 	return (queue);
 }
 
 /**
  * eval_neighbors - evaluates the neighbors of a graph vertex
  * @node: node
- * @edges: edges heap
+ * @edge_heap: edge_heap heap
  * @seen: seen array
- * @dk_heap: vertex heap
+ * @heap: vertex heap
  * Return: 1 on failure | 0 on success
  **/
-static int eval_neighbors(dk_node_t *node, edge_t **edges,
-		dk_node_t **seen, dk_node_t **dk_heap)
+static int eval_neighbors(dijkstra_node_t *node, edge_t **edge_heap,
+		dijkstra_node_t **seen, dijkstra_node_t **heap)
 {
 	edge_t *edge;
 	vertex_t *vertex;
 	int weight;
 
-	/* Sort edges */
+	/* Sort edge_heap */
 	for (edge = node->vertex->edges; edge; edge = edge->next)
-		edge_heap_push(edge, edges);
+		edge_heap_push(edge, edge_heap);
 
-	/* For each edge, check destination */
-	for (edge = edge_heap_pop(edges); edge; edge = edge_heap_pop(edges))
+	/* For each edge, check its destination vertex */
+	for (edge = edge_heap_pop(edge_heap); edge; edge = edge_heap_pop(edge_heap))
 	{
 
 		vertex = edge->dest, weight = edge->weight + node->weight;
 		/**
-		 * if vertex has not been seen, add to seen and vertex heap
-		 * if this edge's path weight to this vertex is shorter than the
-		 * known path/weight to the vertex, update the dk_vertex
+		 * if vertex has not been seen, add to seen and vertex heap.
+		 * else if path weight to vertex via this edge is shorter than the
+		 * known path/weight to vertex, update seen[vertex->index].
 		 */
 		if (!seen[vertex->index])
 		{
-			if (!(seen[vertex->index] = dk_node_init(vertex, node, weight)))
+			if (!(seen[vertex->index] = dijkstra_node_init(vertex, node, weight)))
 				return (-1);
-			dk_heap_push(seen[vertex->index], dk_heap);
+			dijkstra_heap_push(seen[vertex->index], heap);
 		}
 		else if (weight < seen[vertex->index]->weight)
 		{
 
 			seen[vertex->index]->via = node;
 			seen[vertex->index]->weight = weight;
-			dk_heap_push(seen[vertex->index], dk_heap);
+			dijkstra_heap_push(seen[vertex->index], heap);
 		}
 	}
 
@@ -112,10 +112,10 @@ static int eval_neighbors(dk_node_t *node, edge_t **edges,
 
 /**
  * print_msg - prints current position and distance from start
- * @node: pointer to dk_node
+ * @node: pointer to dijkstra_node
  * @start: pointer to starting position
  **/
-static void print_msg(dk_node_t *node, const vertex_t *start)
+static void print_msg(dijkstra_node_t *node, const vertex_t *start)
 {
 	if (node && start)
 	{
@@ -131,7 +131,7 @@ static void print_msg(dk_node_t *node, const vertex_t *start)
  * @node: dijkstra node
  * Return: queue of city names from start to dest
  */
-static queue_t *make_result(dk_node_t *node)
+static queue_t *make_result(dijkstra_node_t *node)
 {
 	queue_t *queue;
 	char *s;
