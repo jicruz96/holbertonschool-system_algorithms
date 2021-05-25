@@ -1,6 +1,7 @@
 #include "pathfinding.h"
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <stdio.h>
 #include "heap.h"
 #include "heap.c"
@@ -47,7 +48,7 @@ queue_t *a_star_graph(graph_t *graph, vertex_t const *start,
 
 		while ((node = heap_pop(heap)))
 		{
-			print_msg(node, start);
+			print_msg(node, target);
 
 			if (node->vertex == target)
 			{
@@ -120,22 +121,6 @@ static int eval_neighbors(a_star_node_t *node, heap_t *edge_heap,
 }
 
 /**
- * print_msg - prints current position and distance from start
- * @node: pointer to a_star_node
- * @start: pointer to starting position
- **/
-static void print_msg(a_star_node_t *node, const vertex_t *start)
-{
-	if (node && start)
-	{
-		printf("Checking %s, distance from %s is %d\n",
-				(char *)node->vertex->content,
-				(char *)start->content,
-				node->weight);
-	}
-}
-
-/**
  * make_result - makes result
  * @node: a_start node
  * Return: queue of city names from start to dest
@@ -189,4 +174,39 @@ int a_star_compare(void *a, void *b)
 			>
 		((a_star_node_t *)b)->weight + ((a_star_node_t *)b)->distance
 	);
+}
+
+
+
+/**
+ * distance_to - returns distance from curr to target
+ *
+ * @curr: current position vertex
+ * @target: target vertex
+ * Return: distance
+ */
+double distance_to(const vertex_t *curr, const vertex_t *target)
+{
+	int x = curr->x - target->x;
+	int y = curr->y - target->y;
+
+	return (sqrt(x * x + y * y));
+}
+
+
+
+/**
+ * print_msg - prints current position and distance to target
+ * @node: pointer to a_star_node
+ * @target: pointer to target position
+ **/
+static void print_msg(a_star_node_t *node, const vertex_t *target)
+{
+	if (node && target)
+	{
+		printf("Checking %s, distance to %s is %d\n",
+				(char *)node->vertex->content,
+				(char *)target->content,
+				(int)node->distance);
+	}
 }
