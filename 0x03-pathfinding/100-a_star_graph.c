@@ -14,33 +14,6 @@ static a_star_node_t *a_star_node_init(const vertex_t *vertex,
 		a_star_node_t *via, int weight, const vertex_t *target);
 
 /**
- * a_star_node_init - initializes a a_star_node_t data structure
- * @vertex: current position in graph (vertex_t)
- * @via: previous postion in graph (a_star_node_t)
- * @weight: weight of path from start to curr via prev
- * @target: pointer to target node (used to calculate distance)
- * Return: pointer to new node
- */
-static a_star_node_t *a_star_node_init(const vertex_t *vertex,
-		a_star_node_t *via, int weight, const vertex_t *target)
-{
-	a_star_node_t *node = malloc(sizeof(a_star_node_t));
-
-	if (node)
-	{
-		node->vertex = vertex;
-		node->via = via;
-		node->weight = weight;
-#define distance_to(a, b) (sqrt(pow(a->x - b->x, 2) + pow(a->y - b->y, 2)))
-		node->distance = distance_to(vertex, target);
-	}
-
-	return (node);
-}
-
-
-
-/**
  * a_star_graph - searches for the shortest path from a starting point to a
  *                  target point in a graph.
  * @graph: pointer to the graph to go through
@@ -92,6 +65,31 @@ queue_t *a_star_graph(graph_t *graph, vertex_t const *start,
 	heap_delete(edge_heap);
 	heap_delete(heap);
 	return (queue);
+}
+
+/**
+ * a_star_node_init - initializes a a_star_node_t data structure
+ * @vertex: current position in graph (vertex_t)
+ * @via: previous postion in graph (a_star_node_t)
+ * @weight: weight of path from start to curr via prev
+ * @target: pointer to target node (used to calculate distance)
+ * Return: pointer to new node
+ */
+static a_star_node_t *a_star_node_init(const vertex_t *vertex,
+		a_star_node_t *via, int weight, const vertex_t *target)
+{
+	a_star_node_t *node = malloc(sizeof(a_star_node_t));
+
+	if (node)
+	{
+		node->vertex = vertex;
+		node->via = via;
+		node->weight = weight;
+#define distance_to(a, b) (sqrt(pow(a->x - b->x, 2) + pow(a->y - b->y, 2)))
+		node->distance = distance_to(vertex, target);
+	}
+
+	return (node);
 }
 
 /**
