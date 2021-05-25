@@ -27,14 +27,12 @@ queue_t *backtracking_graph(graph_t *graph, vertex_t const *start,
 
 	path = queue_create();
 	seen = calloc(graph->nb_vertices, sizeof(char));
-	if (!path || !seen)
+	if (!path || !seen || !backtrack(graph, seen, start, target, path))
 	{
 		queue_delete(path);
 		free(seen);
 		return (NULL);
 	}
-
-	backtrack(graph, seen, start, target, path);
 	free(seen);
 	return (add_city(strdup(start->content), path));
 }
