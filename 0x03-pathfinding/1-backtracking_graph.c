@@ -53,7 +53,6 @@ static queue_t *backtrack(graph_t *graph, char *seen, vertex_t const *curr,
 			vertex_t const *target, queue_t *path)
 {
 	edge_t *edge;
-	char *city;
 
 	if (!curr || seen[curr->index])
 		return (NULL);
@@ -63,7 +62,7 @@ static queue_t *backtrack(graph_t *graph, char *seen, vertex_t const *curr,
 	printf("Checking %s\n", (char *)curr->content);
 
 	if (curr == target)
-		return (add_city(strdup(curr->content), path));
+		return (path);
 
 
 	for (edge = curr->edges; edge; edge = edge->next)
