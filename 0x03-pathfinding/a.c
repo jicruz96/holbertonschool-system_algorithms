@@ -2,21 +2,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "dijkstra_heap.h"
-#include "dijkstra_heap.c"
 #include "heap.h"
 #include "heap.c"
+#include "a_star.c"
+#include "a_star.h"
 
-static void print_msg(dijkstra_node_t *node, const vertex_t *start);
-static queue_t *make_result(dijkstra_node_t *node);
-static int eval_neighbors(dijkstra_node_t *node, heap_t *edge_heap,
-		dijkstra_node_t **seen, heap_t *heap);
-static int dijkstra_compare(void *vertex1, void *vertex2);
+static void print_msg(a_star_node_t *node, const vertex_t *start);
+static queue_t *make_result(a_star_node_t *node);
+static int eval_neighbors(a_star_node_t *node, heap_t *edge_heap,
+		a_star_node_t **seen, heap_t *heap, const vertex_t *target);
+static int a_star_compare(void *vertex1, void *vertex2);
 static int edge_compare(void *edge1, void *edge2);
 
 
 /**
- * dijkstra_graph - searches for the shortest path from a starting point to a
+ * a_star_graph - searches for the shortest path from a starting point to a
  *                  target point in a graph.
  * @graph: pointer to the graph to go through
  * @start: pointer to the starting vertex
@@ -24,10 +24,10 @@ static int edge_compare(void *edge1, void *edge2);
  * Return: queue of strings corresponding to a vertex, forming a path from
  *         start to target
  **/
-queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
+queue_t *a_star_graph(graph_t *graph, vertex_t const *start,
 			vertex_t const *target)
 {
-	dijkstra_node_t *node = NULL, **seen = NULL;
+	a_star_node_t *node = NULL, **seen = NULL;
 	heap_t *heap = NULL, *edge_heap = NULL;
 	queue_t *queue = NULL;
 	size_t i;
@@ -38,9 +38,9 @@ queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
 	if
 	(
 		(edge_heap = heap_init(graph->nb_vertices, edge_compare)) &&
-		(seen      = calloc(graph->nb_vertices, sizeof(dijkstra_node_t *))) &&
-		(heap      = heap_init(graph->nb_vertices, dijkstra_compare)) &&
-		(seen[start->index] = dijkstra_node_init(start, NULL, 0))
+		(seen      = calloc(graph->nb_vertices, sizeof(a_star_node_t *))) &&
+		(heap      = heap_init(graph->nb_vertices, a_star_compare)) &&
+		(seen[start->index] = a_star_node_init(start, NULL, 0, target))
 	)
 	{
 		heap_push(seen[start->index], heap);
@@ -54,7 +54,7 @@ queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
 				queue = make_result(node);
 				break;
 			}
-			if (eval_neighbors(node, edge_heap, seen, heap) == -1)
+			if (eval_neighbors(node, edge_heap, seen, heap, target) == -1)
 				break;
 		}
 	}
@@ -73,10 +73,11 @@ queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
  * @edge_heap: edge_heap heap
  * @seen: seen array
  * @heap: vertex heap
+ * @target: target position
  * Return: 1 on failure | 0 on success
  **/
-static int eval_neighbors(dijkstra_node_t *node, heap_t *edge_heap,
-		dijkstra_node_t **seen, heap_t *heap)
+static int eval_neighbors(a_star_node_t *node, heap_t *edge_heap,
+		a_star_node_t **seen, heap_t *heap, const vertex_t *target)
 {
 	edge_t *edge;
 	vertex_t *vertex;
@@ -99,7 +100,7 @@ static int eval_neighbors(dijkstra_node_t *node, heap_t *edge_heap,
 		 */
 		if (!seen[vertex->index])
 		{
-			if (!(seen[vertex->index] = dijkstra_node_init(vertex, node, weight)))
+			if (!(seen[vertex->index] = a_star_node_init(vertex, node, weight, target)))
 				return (-1);
 			heap_push(seen[vertex->index], heap);
 		}
@@ -120,10 +121,10 @@ static int eval_neighbors(dijkstra_node_t *node, heap_t *edge_heap,
 
 /**
  * print_msg - prints current position and distance from start
- * @node: pointer to dijkstra_node
+ * @node: pointer to a_star_node
  * @start: pointer to starting position
  **/
-static void print_msg(dijkstra_node_t *node, const vertex_t *start)
+static void print_msg(a_star_node_t *node, const vertex_t *start)
 {
 	if (node && start)
 	{
@@ -136,10 +137,10 @@ static void print_msg(dijkstra_node_t *node, const vertex_t *start)
 
 /**
  * make_result - makes result
- * @node: dijkstra node
+ * @node: a_start node
  * Return: queue of city names from start to dest
  */
-static queue_t *make_result(dijkstra_node_t *node)
+static queue_t *make_result(a_star_node_t *node)
 {
 	queue_t *queue;
 	char *s;
@@ -164,7 +165,6 @@ static queue_t *make_result(dijkstra_node_t *node)
 	return (queue);
 }
 
-
 /**
  * edge_compare - comparison function for heap of edge_t objects
  * @a: first edge
@@ -176,12 +176,17 @@ int edge_compare(void *a, void *b)
 	return (((edge_t *)a)->weight > ((edge_t *)b)->weight);
 }
 /**
- * dijkstra_compare - comparison function for heap of dijkstra_node_t objects
+ * a_star_compare - comparison function for heap of a_star_node_t objects
  * @a: first node
  * @b: second node
  * Return: 1 if a is greater than b | 0 otherwise
  **/
-int dijkstra_compare(void *a, void *b)
+int a_star_compare(void *a, void *b)
 {
-	return (((dijkstra_node_t *)a)->weight > ((dijkstra_node_t *)b)->weight);
+	return
+	(
+		((a_star_node_t *)a)->weight + ((a_star_node_t *)a)->distance
+			>
+		((a_star_node_t *)b)->weight + ((a_star_node_t *)b)->distance
+	);
 }
