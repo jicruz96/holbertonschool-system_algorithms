@@ -118,7 +118,7 @@ static void print_msg(a_node_t *node, const vertex_t *start)
 		printf("Checking %s, distance from %s is %d\n",
 				(char *)node->vertex->content,
 				(char *)start->content,
-				node->distance);
+				(int)node->distance);
 	}
 }
 
