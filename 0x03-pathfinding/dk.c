@@ -3,12 +3,16 @@
 #include <string.h>
 #include <stdio.h>
 #include "dijkstra_heap.h"
+#include "dijkstra_heap.c"
 #include "heap.h"
+#include "heap.c"
 
 static void print_msg(dijkstra_node_t *node, const vertex_t *start);
 static queue_t *make_result(dijkstra_node_t *node);
-static int eval_neighbors(dijkstra_node_t *node, edge_t **edge_heap,
-		dijkstra_node_t **seen, dijkstra_node_t **heap);
+static int eval_neighbors(dijkstra_node_t *node, heap_t *edge_heap,
+		dijkstra_node_t **seen, heap_t *heap);
+static int dijkstra_compare(void *vertex1, void *vertex2);
+static int edge_compare(void *edge1, void *edge2);
 
 
 /**
@@ -23,8 +27,8 @@ static int eval_neighbors(dijkstra_node_t *node, edge_t **edge_heap,
 queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
 			vertex_t const *target)
 {
-	dijkstra_node_t *node = NULL, **seen = NULL, **heap = NULL;
-	edge_t **edge_heap = NULL;
+	dijkstra_node_t *node = NULL, **seen = NULL;
+	heap_t *heap = NULL, *edge_heap = NULL;
 	queue_t *queue = NULL;
 	size_t i;
 
@@ -71,8 +75,8 @@ queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
  * @heap: vertex heap
  * Return: 1 on failure | 0 on success
  **/
-static int eval_neighbors(dijkstra_node_t *node, edge_t **edge_heap,
-		dijkstra_node_t **seen, dijkstra_node_t **heap)
+static int eval_neighbors(dijkstra_node_t *node, heap_t *edge_heap,
+		dijkstra_node_t **seen, heap_t *heap)
 {
 	edge_t *edge;
 	vertex_t *vertex;
@@ -159,3 +163,22 @@ static queue_t *make_result(dijkstra_node_t *node)
 
 	return (queue);
 }
+
+
+int edge_compare(void *edge1, void *edge2)
+{
+
+	edge_t *e1 = (edge_t *)edge1, *e2 = (edge_t *)edge2;
+
+	return (e1->weight > e2->weight);
+
+}
+
+int dijkstra_compare(void *vertex1, void *vertex2)
+{
+	dijkstra_node_t *v1 = (dijkstra_node_t *)vertex1;
+	dijkstra_node_t *v2 = (dijkstra_node_t *)vertex2;
+
+	return (v1->weight > v2->weight);
+}
+
