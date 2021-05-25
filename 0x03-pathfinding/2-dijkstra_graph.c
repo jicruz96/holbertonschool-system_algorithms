@@ -78,15 +78,20 @@ static int eval_neighbors(dk_node_t *node, edge_t **edges,
 	vertex_t *vertex;
 	int weight;
 
+	/* Sort edges */
 	for (edge = node->vertex->edges; edge; edge = edge->next)
 		edge_heap_push(edge, edges);
 
-
+	/* For each edge, check destination */
 	for (edge = edge_heap_pop(edges); edge; edge = edge_heap_pop(edges))
 	{
 
 		vertex = edge->dest, weight = edge->weight + node->weight;
-
+		/**
+		 * if vertex has not been seen, add to seen and vertex heap
+		 * if this edge's path weight to this vertex is shorter than the
+		 * known path/weight to the vertex, update the dk_vertex
+		 */
 		if (!seen[vertex->index])
 		{
 			if (!(seen[vertex->index] = dk_node_init(vertex, node, weight)))
@@ -95,6 +100,7 @@ static int eval_neighbors(dk_node_t *node, edge_t **edges,
 		}
 		else if (weight < seen[vertex->index]->weight)
 		{
+
 			seen[vertex->index]->via = node;
 			seen[vertex->index]->weight = weight;
 			dk_heap_push(seen[vertex->index], dk_heap);
