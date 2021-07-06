@@ -6,11 +6,13 @@
  */
 void nary_tree_delete(nary_tree_t *tree)
 {
+	nary_tree_t *tmp, *tmp2;
+
 	if (!tree)
 		return;
 
-	for (; tree->children; tree->children = tree->children->next)
-		nary_tree_delete(tree->children);
+	for (tmp = tree->children; tmp; tmp = tmp2)
+		tmp2 = tmp->next, nary_tree_delete(tmp);
 
 	free(tree->content);
 	free(tree);
