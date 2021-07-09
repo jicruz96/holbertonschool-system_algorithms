@@ -21,7 +21,7 @@ size_t nary_tree_traverse(
 	void (*action)(nary_tree_t const *node, size_t depth)
 )
 {
-	return helper(root, action, 0);
+	return (helper(root, action, 0));
 }
 
 static size_t helper(
