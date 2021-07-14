@@ -12,7 +12,7 @@ static size_t nary_tree_depth(nary_tree_t const *root);
  */
 size_t nary_tree_diameter(nary_tree_t const *root)
 {
-	size_t max_depth = 0, second_max_depth = 0, tmp_depth, tmp;
+	size_t max_depth = 0, second_max_depth = 0, tmp_depth, tmp_diam, max_diam = 0, tmp;
 	nary_tree_t *tmp_node;
 
 	if (!root)
@@ -21,6 +21,8 @@ size_t nary_tree_diameter(nary_tree_t const *root)
 	for (tmp_node = root->children; tmp_node; tmp_node = tmp_node->next)
 	{
 		tmp_depth = nary_tree_depth(tmp_node);
+		tmp_diam  = nary_tree_diameter(tmp_node);
+		max_diam = max(tmp_diam, max_diam);
 		if (tmp_depth > max_depth)
 		{
 			tmp = max_depth;
@@ -33,7 +35,7 @@ size_t nary_tree_diameter(nary_tree_t const *root)
 		}
 	}
 
-	return (max_depth + second_max_depth + 1);
+	return (max(max_diam, max_depth + second_max_depth + 1));
 }
 
 /**
