@@ -12,7 +12,8 @@ static size_t nary_tree_depth(nary_tree_t const *root);
  */
 size_t nary_tree_diameter(nary_tree_t const *root)
 {
-	size_t max_depth = 0, second_max_depth = 0, tmp_depth, tmp_diam, max_diam = 0, tmp;
+	size_t max_depth = 0, second_max_depth = 0, max_diam = 0;
+	size_t tmp_depth, tmp_diam, tmp;
 	nary_tree_t *tmp_node;
 
 	if (!root)
